@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_01_121651) do
+ActiveRecord::Schema.define(version: 2020_04_01_131041) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,12 @@ ActiveRecord::Schema.define(version: 2020_04_01_121651) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["restaurant_id"], name: "index_comments_on_restaurant_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "jwt_blacklists", force: :cascade do |t|
+    t.string "jti", null: false
+    t.datetime "exp", null: false
+    t.index ["jti"], name: "index_jwt_blacklists_on_jti"
   end
 
   create_table "restaurants", force: :cascade do |t|

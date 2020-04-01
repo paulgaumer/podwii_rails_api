@@ -30,6 +30,8 @@ gem "pundit"
 gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'devise'
+gem "devise-jwt"
+gem "rack-cors"
 
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass'
