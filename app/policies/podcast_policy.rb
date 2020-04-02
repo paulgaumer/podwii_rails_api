@@ -10,6 +10,10 @@ class PodcastPolicy < ApplicationPolicy
     record.user == user
   end
 
+  def landing_page?
+    true
+  end
+
   def update?
     record.user == user
   end

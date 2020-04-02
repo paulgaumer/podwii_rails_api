@@ -8,6 +8,11 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   def show
   end
 
+  def landing_page
+    @podcast = Podcast.find_by(name: params[:name])
+    authorize @podcast
+  end
+
   def create
     @podcast = podcast.new(podcast_params)
     @podcast.user = current_user
