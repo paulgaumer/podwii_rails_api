@@ -1,5 +1,5 @@
 {
-  "name": "restaurants_api",
+  "name": "podcasts_api",
   "private": true,
   "dependencies": {
     "@rails/actioncable": "^6.0.0",

@@ -15,7 +15,7 @@ class PodcastPolicy < ApplicationPolicy
   end
 
   def create?
-    # Any logged in can create a restaurant as long as user exists
+    # Any logged in can create a podcast as long as user exists
     !user.nil?
   end
 
