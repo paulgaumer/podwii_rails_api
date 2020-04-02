@@ -7,5 +7,11 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 User.destroy_all
+Podcast.destroy_all
+
+#Create Users
 User.create!(email: "paul@test.com", password:"password")
 User.create!(email: "bob@test.com", password:"password")
+
+#Create Podcasts
+Podcast.create!(name: "Hello World", description: "Best podcast in the world!", url:"https://google.com", user: User.first)
