@@ -9,7 +9,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   def landing_page
-    @podcast = Podcast.find_by(name: params[:name])
+    @podcast = Podcast.find_by(subdomain: params[:subdomain])
     authorize @podcast
   end
 

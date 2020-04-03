@@ -5,7 +5,7 @@ Rails.application.routes.draw do
       resources :podcasts
       get 'dashboard', to: 'podcasts#show'
       patch 'dashboard/edit', to: 'podcasts#update'
-      get "landing/:name", to: "podcasts#landing_page"
+      get "landing/:subdomain", to: "podcasts#landing_page"
     end
   end
   root to: 'pages#home'
