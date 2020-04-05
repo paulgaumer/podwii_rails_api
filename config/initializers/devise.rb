@@ -298,5 +298,7 @@ Devise.setup do |config|
   # config.sign_in_after_change_password = true
   config.jwt do |jwt|
     jwt.secret = "4393e66d7191100ba8ee6aca391253c2d0877146a966f05beb46f6ab40e12f516f0f79dff155b9c854770ad8b0b52bfdc2d589e7052f3b6eda7822b00c52295e"
+    # Expires after 1 day
+    jwt.expiration_time = 3600 * 24
   end
 end
