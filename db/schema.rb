@@ -10,10 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_03_143830) do
+ActiveRecord::Schema.define(version: 2020_04_06_145753) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "episodes", force: :cascade do |t|
+    t.string "title"
+    t.text "show_notes"
+    t.text "content"
+    t.string "audio_file"
+    t.string "pubDate"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "podcast_id", null: false
+    t.index ["podcast_id"], name: "index_episodes_on_podcast_id"
+  end
 
   create_table "jwt_blacklists", force: :cascade do |t|
     t.string "jti", null: false
@@ -30,6 +42,8 @@ ActiveRecord::Schema.define(version: 2020_04_03_143830) do
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "user_id", null: false
     t.string "subdomain"
+    t.string "feed_url"
+    t.string "cover_url"
     t.index ["user_id"], name: "index_podcasts_on_user_id"
   end
 
@@ -41,9 +55,12 @@ ActiveRecord::Schema.define(version: 2020_04_03_143830) do
     t.datetime "remember_created_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "first_name"
+    t.string "last_name"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "episodes", "podcasts"
   add_foreign_key "podcasts", "users"
 end

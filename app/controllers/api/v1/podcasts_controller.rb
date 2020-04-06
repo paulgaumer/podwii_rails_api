@@ -45,7 +45,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   def podcast_params
-    params.require(:podcast).permit(:name, :description, :url, :audio_player, :subdomain)
+    params.require(:podcast).permit(:name, :description, :url, :audio_player, :subdomain, :feed_url, :cover_url)
   end
 
   def render_error
