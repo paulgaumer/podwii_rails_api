@@ -1,1 +1,2 @@
-json.extract! @podcast, :id, :name, :description, :url, :audio_player
+json.extract! @podcast, :id, :name, :description, :url, :audio_player, :feed_url, :cover_url
+json.user @podcast.user, :email, :first_name, :last_name
