@@ -32,6 +32,7 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'devise'
 gem "devise-jwt"
 gem "rack-cors"
+gem 'aws-sdk'
 
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass'

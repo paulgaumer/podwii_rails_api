@@ -13,6 +13,9 @@ class PodcastPolicy < ApplicationPolicy
   def landing_page?
     true
   end
+  def upload_audio_for_transcription?
+    true
+  end
 
   def update?
     record.user == user
