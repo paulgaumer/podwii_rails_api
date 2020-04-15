@@ -37,6 +37,12 @@ gem 'aws-sdk'
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass'
 gem 'simple_form'
+
+
+gem "better_errors"
+gem "binding_of_caller"
+
+
 group :development, :test do  gem 'pry-byebug'
   gem 'pry-rails'
   gem 'dotenv-rails'

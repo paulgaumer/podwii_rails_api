@@ -46,8 +46,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
 
   def upload_audio_for_transcription
     @s3_obj.upload_stream do |write_stream|
-      byebug
-      IO.copy_stream(URI.open("https://dwj199mwkel52.cloudfront.net/assets/core/home/coding-school-that-cares-alumni-025e665def0e2f5a9a539cd2f8762fedbd4c5074a725ebed08570a5bdacc45f7.jpg", write_stream))
+      IO.copy_stream(URI.open('https://chtbl.com/track/G5EG82/www.buzzsprout.com/740042/2205065-00-on-creating-japan-life-stories-with-paul-gaumer.mp3'), write_stream)
     end
   end
 
@@ -70,6 +69,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   def set_s3_object
     s3 = Aws::S3::Resource.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])  
     bucket_name = ENV["AWS_BUCKET_NAME"]
-    @s3_obj = s3.bucket(bucket_name)
+    @key= "audio_file.mp3"
+    @s3_obj = s3.bucket(bucket_name).object(@key)
   end
 end

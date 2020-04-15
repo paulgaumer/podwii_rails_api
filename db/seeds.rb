@@ -14,4 +14,4 @@ User.create!(email: "paul@test.com", password:"password")
 User.create!(email: "bob@test.com", password:"password")
 
 #Create Podcasts
-Podcast.create!(name: "Hello World", description: "Best podcast in the world!", url:"https://google.com", user: User.first)
+Podcast.create!(name: "", description: "", url:"https://google.com", subdomain: "subtest", feed_url: "https://feeds.buzzsprout.com/740042.rss", user: User.first)
