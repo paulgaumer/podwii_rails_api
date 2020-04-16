@@ -1,4 +1,5 @@
 require "open-uri"
+require 'rss'
 
 class Api::V1::PodcastsController < Api::V1::BaseController
   before_action :set_podcast, only: [ :show, :update, :destroy ]
@@ -11,6 +12,12 @@ class Api::V1::PodcastsController < Api::V1::BaseController
 
   # Display the user dashboard
   def show
+    feed = nil
+    URI.open(@podcast.feed_url) do |rss|
+      rss = RSS::Parser.parse(rss)
+      feed = rss.channel
+    end
+    @rss_feed = feed
   end
 
   def create

@@ -1092,6 +1092,9 @@ GEM
     responders (3.0.0)
       actionpack (>= 5.0)
       railties (>= 5.0)
+    rexml (3.2.4)
+    rss (0.2.9)
+      rexml
     ruby_dep (1.5.0)
     rubyzip (2.3.0)
     sass-rails (6.0.0)
@@ -1181,6 +1184,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 6.0.2, >= 6.0.2.2)
   redis (~> 4.0)
+  rss
   sass-rails (>= 6)
   selenium-webdriver
   simple_form
