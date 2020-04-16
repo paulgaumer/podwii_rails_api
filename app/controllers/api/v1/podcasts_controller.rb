@@ -12,11 +12,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
 
   # Display the user dashboard
   def show
-    feed = nil
-    URI.open(@podcast.feed_url) do |rss|
-      rss = RSS::Parser.parse(rss)
-      feed = rss.channel
-    end
+    feed = parse_rss_feed(@podcast)
     @rss_feed = feed
   end
 
@@ -104,10 +100,44 @@ class Api::V1::PodcastsController < Api::V1::BaseController
       status: :unprocessable_entity
   end
 
+  # Need for audio upload to S3
   def set_s3_object
     s3 = Aws::S3::Resource.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])  
     bucket_name = ENV["AWS_BUCKET_NAME"]
     @key= "audio_file.mp3"
     @s3_obj = s3.bucket(bucket_name).object(@key)
+  end
+
+  def parse_rss_feed(podcast)
+    feed = nil
+    URI.open(@podcast.feed_url) do |rss|
+      rss = RSS::Parser.parse(rss)
+      channel = rss.channel
+      image = {
+        link: channel.image.link,
+        title: channel.image.title,
+        url: channel.image.url
+      }
+      items = channel.items.map do |item|
+        {
+          title: item.title,
+          description: item.description,
+          guid: item.guid.content,
+          enclosure: {
+            length: item.enclosure.length,
+            type: item.enclosure.type,
+            url: item.enclosure.url,
+          }
+        }
+      end
+      feed = {
+        title: channel.title,
+        description: channel.description,
+        feed_url: @podcast.feed_url,
+        image: image,
+        items: items
+      }
+      # binding.pry
+    end
   end
 end
