@@ -57,6 +57,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
     end
   end
 
+  # Retrieve transcription from AWS Transcribe
   def download_transcription
     client = Aws::TranscribeService::Client.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
     resp = client.get_transcription_job({
@@ -65,10 +66,13 @@ class Api::V1::PodcastsController < Api::V1::BaseController
     status = resp.transcription_job.transcription_job_status
 
     if status === "COMPLETED"
-    render json: {
-      transcriptFileUri: resp.transcription_job.transcript.transcript_file_uri,
-      redactedTranscriptFileUri: resp.transcription_job.transcript.redacted_transcript_file_uri
-    }
+      transcription_serialized = URI.open(resp.transcription_job.transcript.transcript_file_uri).read
+      transcription_file = JSON.parse(transcription_serialized)
+      # byebug
+      transcript = transcription_file["results"]["transcripts"][0]["transcript"]
+      render json: {
+        transcript: transcript
+      }
     else
       render json: {status: status}
     end
