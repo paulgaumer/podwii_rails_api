@@ -108,6 +108,13 @@ class Api::V1::PodcastsController < Api::V1::BaseController
     @s3_obj = s3.bucket(bucket_name).object(@key)
   end
 
+  # Remove tags coming with the raw description
+  def remove_html_tags(text)
+    re = /<("[^"]*"|'[^']*'|[^'">])*>/
+    text.gsub!(re, '')
+  end
+
+  # Parse and reformat rss feed
   def parse_rss_feed(podcast)
     feed = nil
     URI.open(@podcast.feed_url) do |rss|
@@ -121,12 +128,13 @@ class Api::V1::PodcastsController < Api::V1::BaseController
       items = channel.items.map do |item|
         {
           title: item.title,
-          description: item.description,
+          description: remove_html_tags(item.description),
           guid: item.guid.content,
           enclosure: {
             length: item.enclosure.length,
             type: item.enclosure.type,
             url: item.enclosure.url,
+            duration: item.itunes_duration.content != nil ? item.itunes_duration.content : ""
           }
         }
       end
