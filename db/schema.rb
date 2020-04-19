@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_07_204511) do
+ActiveRecord::Schema.define(version: 2020_04_19_104711) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -18,12 +18,14 @@ ActiveRecord::Schema.define(version: 2020_04_07_204511) do
   create_table "episodes", force: :cascade do |t|
     t.string "title"
     t.text "show_notes"
-    t.text "content"
+    t.text "transcription"
     t.string "audio_file"
     t.string "pubDate"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "podcast_id", null: false
+    t.string "guid", null: false
+    t.text "summary"
     t.index ["podcast_id"], name: "index_episodes_on_podcast_id"
   end
 
