@@ -134,7 +134,8 @@ class Api::V1::PodcastsController < Api::V1::BaseController
             length: item.enclosure.length,
             type: item.enclosure.type,
             url: item.enclosure.url,
-            duration: item.itunes_duration.content != nil ? item.itunes_duration.content : ""
+            duration: item.itunes_duration.content != nil ? item.itunes_duration.content : "",
+            pubDate: item.pubDate
           }
         }
       end
