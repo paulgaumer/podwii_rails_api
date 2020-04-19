@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
       resources :podcasts
+      resources :episodes, only: [:create, :update]
       get 'dashboard', to: 'podcasts#show'
       patch 'dashboard/edit', to: 'podcasts#update'
       get "landing/:subdomain", to: "podcasts#landing_page"
