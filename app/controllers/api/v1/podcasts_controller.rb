@@ -46,6 +46,8 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   def landing_page
     @podcast = Podcast.find_by(subdomain: params[:subdomain])
     authorize @podcast
+    feed = parse_rss_feed(@podcast)
+    @rss_feed = feed
   end
 
   # Upload episode's audio to S3
