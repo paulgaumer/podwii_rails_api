@@ -12,8 +12,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
 
   # Display the user dashboard
   def show
-    feed = parse_rss_feed(@podcast)
-    @rss_feed = feed
+    @rss_feed = parse_rss_feed(@podcast)
   end
 
   def create
@@ -46,8 +45,15 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   def landing_page
     @podcast = Podcast.find_by(subdomain: params[:subdomain])
     authorize @podcast
-    feed = parse_rss_feed(@podcast)
-    @rss_feed = feed
+    @rss_feed = parse_rss_feed(@podcast)
+  end
+
+  def landing_page_single_episode
+    @podcast = Podcast.find_by(subdomain: params[:subdomain])
+    authorize @podcast
+    @episode_db = @podcast.episodes.find_by(guid: params[:id])
+    @rss_feed = parse_rss_feed(@podcast)
+    @episode_rss = @rss_feed[:items].detect{|x| x[:guid] == params[:id]}
   end
 
   # Upload episode's audio to S3
@@ -94,7 +100,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   def podcast_params
-    params.require(:podcast).permit(:name, :description, :url, :audio_player, :subdomain, :feed_url, :cover_url)
+    params.require(:podcast).permit(:name, :description, :url, :subdomain, :feed_url, :cover_url)
   end
 
   def render_error
@@ -119,7 +125,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   # Parse and reformat rss feed
   def parse_rss_feed(podcast)
     feed = nil
-    URI.open(@podcast.feed_url) do |rss|
+    URI.open(podcast.feed_url) do |rss|
       rss = RSS::Parser.parse(rss)
       channel = rss.channel
       image = {
@@ -132,13 +138,15 @@ class Api::V1::PodcastsController < Api::V1::BaseController
           title: item.title,
           description: remove_html_tags(item.description),
           guid: item.guid.content,
+          podcastCover: image,
           enclosure: {
             length: item.enclosure.length,
             type: item.enclosure.type,
             url: item.enclosure.url,
             duration: item.itunes_duration.content != nil ? item.itunes_duration.content : "",
             pubDate: item.pubDate
-          }
+          },
+          podcast_title: channel.title
         }
       end
       feed = {

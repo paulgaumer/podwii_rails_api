@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       get 'dashboard', to: 'podcasts#show'
       patch 'dashboard/edit', to: 'podcasts#update'
       get "landing/:subdomain", to: "podcasts#landing_page"
+      get "landing/:subdomain/:id", to: "podcasts#landing_page_single_episode"
       get "uploadaudio", to: "podcasts#upload_audio_for_transcription"
       get "gettranscription", to: "podcasts#download_transcription"
     end
