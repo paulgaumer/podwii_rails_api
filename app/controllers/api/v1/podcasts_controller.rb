@@ -165,7 +165,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         title: podcast.title == "" ? channel.title : podcast.title,
         description: podcast.description == "" ? channel.description : podcast.description,
         feed_url: podcast.feed_url,
-        image: image,
+        cover_image: image,
         items: items,
         subdomain: podcast.subdomain
       }
