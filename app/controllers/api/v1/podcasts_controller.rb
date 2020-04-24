@@ -143,7 +143,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         ep_db = Episode.find_by(guid: item.guid.content)
         {
           title: ep_db ? ep_db.title : item.title,
-          summary: ep_db ? ep_db.summary : item.description,
+          summary: ep_db ? ep_db.summary : remove_html_tags(item.description),
           show_notes: ep_db ? ep_db.show_notes : item.description,
           transcription: ep_db ? ep_db.transcription : nil,
           guid: item.guid.content,
@@ -161,6 +161,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
 
       # Create podcast object based on existing data in DB
       pod = {
+        id: podcast.id,
         title: podcast.title == "" ? channel.title : podcast.title,
         description: podcast.description == "" ? channel.description : podcast.description,
         feed_url: podcast.feed_url,
@@ -186,7 +187,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
 
       episode = {
           title: ep_db ? ep_db.title : ep_rss.title,
-          summary: ep_db ? ep_db.summary : ep_rss.description,
+          summary: ep_db ? ep_db.summary : remove_html_tags(ep_rss.description),
           show_notes: ep_db ? ep_db.show_notes : ep_rss.description,
           transcription: ep_db ? ep_db.transcription : nil,
           guid: ep_rss.guid.content,
@@ -199,10 +200,12 @@ class Api::V1::PodcastsController < Api::V1::BaseController
             pubDate: ep_rss.pubDate
           },
           podcast_title: channel.title,
+          db_id: ep_db ? ep_db.id : nil,
         }
 
       # Create podcast object based on existing data in DB
       pod = {
+        id: podcast.id,
         title: podcast.title == "" ? channel.title : podcast.title,
         description: podcast.description == "" ? channel.description : podcast.description,
         feed_url: podcast.feed_url,

@@ -27,7 +27,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
   end
 
   def episode_params
-    params.require(:episode).permit(:podcast_id, :guid, :title, :summary, :show_notes, :transcription)
+    params.require(:episode).permit(:podcast_id, :guid, :title, :summary, :show_notes, :transcription, :enclosure, :cover_image, :podcast_title)
   end
 
   def render_error
