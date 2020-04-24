@@ -136,7 +136,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
       items = channel.items.map do |item|
         {
           title: item.title,
-          description: remove_html_tags(item.description),
+          description: item.description,
           guid: item.guid.content,
           podcastCover: image,
           enclosure: {
@@ -146,7 +146,8 @@ class Api::V1::PodcastsController < Api::V1::BaseController
             duration: item.itunes_duration.content != nil ? item.itunes_duration.content : "",
             pubDate: item.pubDate
           },
-          podcast_title: channel.title
+          podcast_title: channel.title,
+          show_notes: item.description
         }
       end
       feed = {
