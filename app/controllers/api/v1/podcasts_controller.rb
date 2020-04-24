@@ -2,7 +2,7 @@ require "open-uri"
 require 'rss'
 
 class Api::V1::PodcastsController < Api::V1::BaseController
-  before_action :set_podcast, only: [ :show, :update, :destroy ]
+  before_action :set_podcast, only: [ :dashboard, :dashboard_single, :update, :destroy ]
   before_action :set_s3_object, only: [:upload_audio_for_transcription]
   skip_after_action :verify_authorized, only: [:upload_audio_for_transcription, :download_transcription]
 
@@ -11,8 +11,14 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   # end
 
   # Display the user dashboard
-  def show
-    @rss_feed = parse_rss_feed(@podcast)
+  def dashboard
+    @pod = parse_rss_all(@podcast)
+  end
+
+  # Display one episode details in dashboard
+  def dashboard_single
+    episode_id = params[:id]
+    @pod = parse_rss_single(@podcast, episode_id)
   end
 
   def create
@@ -29,7 +35,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   def update
     if @podcast.update(podcast_params)
       # rendre the existing show.json.jbuilder view
-      render :show
+      render :dashboard
     else
       render_error
     end
@@ -45,14 +51,14 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   def landing_page
     @podcast = Podcast.find_by(subdomain: params[:subdomain])
     authorize @podcast
-    @rss_feed = parse_rss_feed(@podcast)
+    @rss_feed = parse_rss_all(@podcast)
   end
 
   def landing_page_single_episode
     @podcast = Podcast.find_by(subdomain: params[:subdomain])
     authorize @podcast
     @episode_db = @podcast.episodes.find_by(guid: params[:id])
-    @rss_feed = parse_rss_feed(@podcast)
+    @rss_feed = parse_rss_all(@podcast)
     @episode_rss = @rss_feed[:items].detect{|x| x[:guid] == params[:id]}
   end
 
@@ -100,7 +106,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   def podcast_params
-    params.require(:podcast).permit(:name, :description, :url, :subdomain, :feed_url, :cover_url)
+    params.require(:podcast).permit(:title, :description, :subdomain, :feed_url)
   end
 
   def render_error
@@ -123,7 +129,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   # Parse and reformat rss feed
-  def parse_rss_feed(podcast)
+  def parse_rss_all(podcast)
     feed = nil
     URI.open(podcast.feed_url) do |rss|
       rss = RSS::Parser.parse(rss)
@@ -134,11 +140,14 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         url: channel.image.url
       }
       items = channel.items.map do |item|
+        ep_db = Episode.find_by(guid: item.guid.content)
         {
-          title: item.title,
-          description: item.description,
+          title: ep_db ? ep_db.title : item.title,
+          summary: ep_db ? ep_db.summary : item.description,
+          show_notes: ep_db ? ep_db.show_notes : item.description,
+          transcription: ep_db ? ep_db.transcription : nil,
           guid: item.guid.content,
-          podcastCover: image,
+          cover_image: image,
           enclosure: {
             length: item.enclosure.length,
             type: item.enclosure.type,
@@ -147,17 +156,60 @@ class Api::V1::PodcastsController < Api::V1::BaseController
             pubDate: item.pubDate
           },
           podcast_title: channel.title,
-          show_notes: item.description
         }
       end
-      feed = {
-        title: channel.title,
-        description: channel.description,
-        feed_url: @podcast.feed_url,
+
+      # Create podcast object based on existing data in DB
+      pod = {
+        title: podcast.title == "" ? channel.title : podcast.title,
+        description: podcast.description == "" ? channel.description : podcast.description,
+        feed_url: podcast.feed_url,
         image: image,
-        items: items
+        items: items,
+        subdomain: podcast.subdomain
       }
-      # binding.pry
+    end
+  end
+
+  def parse_rss_single(podcast, episode_id)
+    feed = nil
+    URI.open(podcast.feed_url) do |rss|
+      rss = RSS::Parser.parse(rss)
+      channel = rss.channel
+      image = {
+        link: channel.image.link,
+        title: channel.image.title,
+        url: channel.image.url
+      }
+      ep_rss = channel.items.detect{|x| x.guid.content == episode_id}
+      ep_db = Episode.find_by(guid: episode_id)
+
+      episode = {
+          title: ep_db ? ep_db.title : ep_rss.title,
+          summary: ep_db ? ep_db.summary : ep_rss.description,
+          show_notes: ep_db ? ep_db.show_notes : ep_rss.description,
+          transcription: ep_db ? ep_db.transcription : nil,
+          guid: ep_rss.guid.content,
+          cover_image: image,
+          enclosure: {
+            length: ep_rss.enclosure.length,
+            type: ep_rss.enclosure.type,
+            url: ep_rss.enclosure.url,
+            duration: ep_rss.itunes_duration.content != nil ? ep_rss.itunes_duration.content : "",
+            pubDate: ep_rss.pubDate
+          },
+          podcast_title: channel.title,
+        }
+
+      # Create podcast object based on existing data in DB
+      pod = {
+        title: podcast.title == "" ? channel.title : podcast.title,
+        description: podcast.description == "" ? channel.description : podcast.description,
+        feed_url: podcast.feed_url,
+        cover_image: image,
+        episode: episode,
+        subdomain: podcast.subdomain
+      }
     end
   end
 end

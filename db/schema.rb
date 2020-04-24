@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_19_104711) do
+ActiveRecord::Schema.define(version: 2020_04_24_133513) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,7 +36,7 @@ ActiveRecord::Schema.define(version: 2020_04_19_104711) do
   end
 
   create_table "podcasts", force: :cascade do |t|
-    t.string "name", default: ""
+    t.string "title", default: ""
     t.text "description", default: ""
     t.text "audio_player"
     t.string "url"

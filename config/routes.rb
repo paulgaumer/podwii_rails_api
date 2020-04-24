@@ -4,7 +4,8 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :podcasts
       resources :episodes, only: [:create, :update]
-      get 'dashboard', to: 'podcasts#show'
+      get 'dashboard', to: 'podcasts#dashboard'
+      get 'dashboard/:id', to: 'podcasts#dashboard_single'
       patch 'dashboard/edit', to: 'podcasts#update'
       get "landing/:subdomain", to: "podcasts#landing_page"
       get "landing/:subdomain/:id", to: "podcasts#landing_page_single_episode"

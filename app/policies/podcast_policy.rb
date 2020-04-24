@@ -6,8 +6,11 @@ class PodcastPolicy < ApplicationPolicy
     end
   end
 
-  def show?
+  def dashboard?
     record.user == user
+  end
+  def dashboard_single?
+    dashboard?
   end
 
   def landing_page?
