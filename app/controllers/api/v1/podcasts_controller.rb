@@ -147,7 +147,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
           show_notes: ep_db ? ep_db.show_notes : item.description,
           transcription: ep_db ? ep_db.transcription : nil,
           guid: item.guid.content,
-          cover_image: image,
+          cover_image: item.itunes_image.href != nil ? {url: item.itunes_image.href} : image,
           enclosure: {
             length: item.enclosure.length,
             type: item.enclosure.type,
@@ -191,7 +191,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
           show_notes: ep_db ? ep_db.show_notes : ep_rss.description,
           transcription: ep_db ? ep_db.transcription : nil,
           guid: ep_rss.guid.content,
-          cover_image: image,
+          cover_image: ep_rss.itunes_image.href != nil ? {url: ep_rss.itunes_image.href} : image,
           enclosure: {
             length: ep_rss.enclosure.length,
             type: ep_rss.enclosure.type,
