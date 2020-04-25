@@ -51,15 +51,16 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   def landing_page
     @podcast = Podcast.find_by(subdomain: params[:subdomain])
     authorize @podcast
-    @rss_feed = parse_rss_all(@podcast)
+    @pod = parse_rss_all(@podcast)
   end
 
   def landing_page_single_episode
     @podcast = Podcast.find_by(subdomain: params[:subdomain])
     authorize @podcast
-    @episode_db = @podcast.episodes.find_by(guid: params[:id])
-    @rss_feed = parse_rss_all(@podcast)
-    @episode_rss = @rss_feed[:items].detect{|x| x[:guid] == params[:id]}
+    episode_id = params[:id]
+    @pod = parse_rss_single(@podcast, episode_id)
+    # @episode_db = @podcast.episodes.find_by(guid: params[:id])
+    # @episode_rss = @rss_feed[:items].detect{|x| x[:guid] == params[:id]}
   end
 
   # Upload episode's audio to S3
@@ -139,7 +140,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         title: channel.image.title,
         url: channel.image.url
       }
-      items = channel.items.map do |item|
+      episodes = channel.items.map do |item|
         ep_db = Episode.find_by(guid: item.guid.content)
         {
           title: ep_db ? ep_db.title : item.title,
@@ -166,7 +167,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         description: podcast.description == "" ? channel.description : podcast.description,
         feed_url: podcast.feed_url,
         cover_image: image,
-        items: items,
+        episodes: episodes,
         subdomain: podcast.subdomain
       }
     end
