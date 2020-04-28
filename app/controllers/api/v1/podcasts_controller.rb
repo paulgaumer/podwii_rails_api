@@ -185,14 +185,13 @@ class Api::V1::PodcastsController < Api::V1::BaseController
       }
       ep_rss = channel.items.detect{|x| x.guid.content == episode_id}
       ep_db = Episode.find_by(guid: episode_id)
-
       episode = {
           title: ep_db ? ep_db.title : ep_rss.title,
           summary: ep_db ? ep_db.summary : remove_html_tags(ep_rss.description),
           show_notes: ep_db ? ep_db.show_notes : ep_rss.description,
           transcription: ep_db ? ep_db.transcription : nil,
           guid: ep_rss.guid.content,
-          cover_image: ep_rss.itunes_image.href != nil ? {url: ep_rss.itunes_image.href} : image,
+          cover_image: ep_rss.itunes_image != nil ? {url: ep_rss.itunes_image.href} : image,
           enclosure: {
             length: ep_rss.enclosure.length,
             type: ep_rss.enclosure.type,
