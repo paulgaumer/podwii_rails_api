@@ -114,7 +114,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   def podcast_params
-    params.require(:podcast).permit(:title, :description, :subdomain, :feed_url, :instagram_access_token)
+    params.require(:podcast).permit(:title, :description, :subdomain, :feed_url, instagram_access_token: [:access_token, :expires_in])
   end
 
   def render_error
