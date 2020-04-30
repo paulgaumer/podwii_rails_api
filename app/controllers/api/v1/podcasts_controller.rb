@@ -230,8 +230,8 @@ class Api::V1::PodcastsController < Api::V1::BaseController
     
     list = result["data"]
     pictures = []
-    if (list.length > 6)
-      range = list.first(6)
+    if (list.length > 8)
+      range = list.first(8)
       range.each do |pic|
         picture = get_picture(pic["id"])
         pictures << picture
@@ -246,7 +246,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
   
   def get_picture(id)
-    url = "https://graph.instagram.com/#{id}?fields=media_url&access_token=IGQVJVeFVtMzNaaG1EUW84V2M4MkhqS1BzZA050LTl0M2F3MksxbXNDVkpuVzJwaFN2SkI1U3FYTzJZAaWFOQ0FNWUNZAbGRLRlZAJLVozbUFQNUt3SDRNb2VaaTNsckhaUkRiN0hUUGZAB"
+    url = "https://graph.instagram.com/#{id}?fields=media_url,media_type,permalink&access_token=IGQVJVeFVtMzNaaG1EUW84V2M4MkhqS1BzZA050LTl0M2F3MksxbXNDVkpuVzJwaFN2SkI1U3FYTzJZAaWFOQ0FNWUNZAbGRLRlZAJLVozbUFQNUt3SDRNb2VaaTNsckhaUkRiN0hUUGZAB"
     result_serialized = open(url).read
     result = JSON.parse(result_serialized)
   end
