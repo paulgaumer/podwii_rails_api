@@ -113,7 +113,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   def podcast_params
-    params.require(:podcast).permit(:title, :description, :subdomain, :feed_url)
+    params.require(:podcast).permit(:title, :description, :subdomain, :feed_url, :instagram_access_token)
   end
 
   def render_error
@@ -230,6 +230,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
     
     list = result["data"]
     pictures = []
+    binding.pry
     if (list.length > 8)
       range = list.first(8)
       range.each do |pic|
