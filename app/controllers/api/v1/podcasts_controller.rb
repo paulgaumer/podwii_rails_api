@@ -1,10 +1,11 @@
 require "open-uri"
+require "json"
 require 'rss'
 
 class Api::V1::PodcastsController < Api::V1::BaseController
   before_action :set_podcast, only: [ :dashboard, :dashboard_single, :update, :destroy ]
   before_action :set_s3_object, only: [:upload_audio_for_transcription]
-  skip_after_action :verify_authorized, only: [:upload_audio_for_transcription, :download_transcription]
+  skip_after_action :verify_authorized, only: [:upload_audio_for_transcription, :download_transcription, :fetch_instagram]
 
   # def index
   #   @podcasts = policy_scope(Podcast)
@@ -95,6 +96,11 @@ class Api::V1::PodcastsController < Api::V1::BaseController
       render json: {status: status}
     end
 
+  end
+
+  def fetch_instagram
+    @instagram = get_instagram_pictures()
+    render json: {instagram: @instagram}
   end
 
   # ********** END CUSTOM ************
@@ -215,4 +221,34 @@ class Api::V1::PodcastsController < Api::V1::BaseController
       }
     end
   end
+
+  def get_instagram_pictures
+    media_list_url = "https://graph.instagram.com/17841401933556190/media?access_token=IGQVJVeFVtMzNaaG1EUW84V2M4MkhqS1BzZA050LTl0M2F3MksxbXNDVkpuVzJwaFN2SkI1U3FYTzJZAaWFOQ0FNWUNZAbGRLRlZAJLVozbUFQNUt3SDRNb2VaaTNsckhaUkRiN0hUUGZAB"
+
+    result_serialized = open(media_list_url).read
+    result = JSON.parse(result_serialized)
+    
+    list = result["data"]
+    pictures = []
+    if (list.length > 6)
+      range = list.first(6)
+      range.each do |pic|
+        picture = get_picture(pic["id"])
+        pictures << picture
+      end
+    else
+      list.each do |pic|
+        picture = get_picture(pic["id"])
+        pictures << picture
+      end
+    end
+    return pictures
+  end
+  
+  def get_picture(id)
+    url = "https://graph.instagram.com/#{id}?fields=media_url&access_token=IGQVJVeFVtMzNaaG1EUW84V2M4MkhqS1BzZA050LTl0M2F3MksxbXNDVkpuVzJwaFN2SkI1U3FYTzJZAaWFOQ0FNWUNZAbGRLRlZAJLVozbUFQNUt3SDRNb2VaaTNsckhaUkRiN0hUUGZAB"
+    result_serialized = open(url).read
+    result = JSON.parse(result_serialized)
+  end
+
 end

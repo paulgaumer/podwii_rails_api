@@ -19,6 +19,9 @@ class PodcastPolicy < ApplicationPolicy
   def landing_page_single_episode?
     landing_page?
   end
+  def fetch_instagram?
+    landing_page?
+  end
 
   def update?
     record.user == user
