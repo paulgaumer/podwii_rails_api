@@ -4,5 +4,5 @@ class Podcast < ApplicationRecord
 
   validates :subdomain, presence: true, uniqueness: true
 
-  serialize :instagram_access_token, JSON
+  # serialize :instagram_access_token, JSON
 end

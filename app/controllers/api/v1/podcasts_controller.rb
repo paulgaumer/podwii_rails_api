@@ -108,6 +108,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   private
 
   def set_podcast
+    # binding.pry
     @podcast = Podcast.where(user: current_user).first
     authorize @podcast
   end
