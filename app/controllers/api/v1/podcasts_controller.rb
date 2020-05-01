@@ -99,7 +99,9 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   def fetch_instagram
-    @instagram = get_instagram_pictures()
+    @podcast = Podcast.find(params[:podcast_id])
+    token = @podcast.instagram_access_token["access_token"]
+    @instagram = get_instagram_pictures(token)
     render json: {instagram: @instagram}
   end
 
@@ -108,7 +110,6 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   private
 
   def set_podcast
-    # binding.pry
     @podcast = Podcast.where(user: current_user).first
     authorize @podcast
   end
@@ -175,7 +176,8 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         feed_url: podcast.feed_url,
         cover_image: image,
         episodes: episodes,
-        subdomain: podcast.subdomain
+        subdomain: podcast.subdomain,
+        instagram_access_token: podcast.instagram_access_token
       }
     end
   end
@@ -223,32 +225,31 @@ class Api::V1::PodcastsController < Api::V1::BaseController
     end
   end
 
-  def get_instagram_pictures
-    media_list_url = "https://graph.instagram.com/17841401933556190/media?access_token=IGQVJVeFVtMzNaaG1EUW84V2M4MkhqS1BzZA050LTl0M2F3MksxbXNDVkpuVzJwaFN2SkI1U3FYTzJZAaWFOQ0FNWUNZAbGRLRlZAJLVozbUFQNUt3SDRNb2VaaTNsckhaUkRiN0hUUGZAB"
+  def get_instagram_pictures(token)
+    media_list_url = "https://graph.instagram.com/me/media?&access_token=#{token}"
 
     result_serialized = open(media_list_url).read
     result = JSON.parse(result_serialized)
     
     list = result["data"]
     pictures = []
-    binding.pry
     if (list.length > 8)
       range = list.first(8)
       range.each do |pic|
-        picture = get_picture(pic["id"])
+        picture = get_picture(pic["id"], token)
         pictures << picture
       end
     else
       list.each do |pic|
-        picture = get_picture(pic["id"])
+        picture = get_picture(pic["id"], token)
         pictures << picture
       end
     end
     return pictures
   end
   
-  def get_picture(id)
-    url = "https://graph.instagram.com/#{id}?fields=media_url,media_type,permalink&access_token=IGQVJVeFVtMzNaaG1EUW84V2M4MkhqS1BzZA050LTl0M2F3MksxbXNDVkpuVzJwaFN2SkI1U3FYTzJZAaWFOQ0FNWUNZAbGRLRlZAJLVozbUFQNUt3SDRNb2VaaTNsckhaUkRiN0hUUGZAB"
+  def get_picture(id, token)
+    url = "https://graph.instagram.com/#{id}?fields=media_url,media_type,permalink&access_token=#{token}"
     result_serialized = open(url).read
     result = JSON.parse(result_serialized)
   end

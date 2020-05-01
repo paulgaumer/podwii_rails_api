@@ -11,7 +11,7 @@ Rails.application.routes.draw do
       get "landing/:subdomain/:id", to: "podcasts#landing_page_single_episode"
       get "uploadaudio", to: "podcasts#upload_audio_for_transcription"
       get "gettranscription", to: "podcasts#download_transcription"
-      get "fetch_instagram", to: "podcasts#fetch_instagram"
+      get "fetch_instagram/:podcast_id", to: "podcasts#fetch_instagram"
     end
   end
   root to: 'pages#home'
