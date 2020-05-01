@@ -4,7 +4,7 @@ require 'rss'
 
 class Api::V1::PodcastsController < Api::V1::BaseController
   before_action :set_podcast, only: [ :dashboard, :dashboard_single, :update, :destroy ]
-  before_action :set_s3_object, only: [:upload_audio_for_transcription]
+  before_action :set_s3_resource, only: [:upload_audio_for_transcription]
   skip_after_action :verify_authorized, only: [:upload_audio_for_transcription, :download_transcription, :fetch_instagram]
 
   # def index
@@ -66,11 +66,33 @@ class Api::V1::PodcastsController < Api::V1::BaseController
 
   # Upload episode's audio to S3
   def upload_audio_for_transcription
+    obj_url = nil
+    @key= "TranscriptionJobTestAudio.mp3"
+    @s3_obj = @s3.bucket(@bucket_name).object(@key)
     upload = @s3_obj.upload_stream do |write_stream|
-      IO.copy_stream(URI.open('https://chtbl.com/track/G5EG82/www.buzzsprout.com/740042/2205065-00-on-creating-japan-life-stories-with-paul-gaumer.mp3'), write_stream)
+      IO.copy_stream(URI.open('https://podwii-transcripts.s3.eu-west-2.amazonaws.com/pod-test.mp3'), write_stream)
     end
-    if upload 
-      render json:{ message: "File uploaded"}
+    if upload
+      obj_url = @s3.bucket(@bucket_name).object(@key).public_url
+    
+      client = Aws::TranscribeService::Client.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
+      resp = client.start_transcription_job({
+        transcription_job_name: "TranscriptionJobTest", # required
+        language_code: "en-US", # required, accepts en-US, es-US, en-AU, fr-CA, en-GB, de-DE, pt-BR, fr-FR, it-IT, ko-KR, es-ES, en-IN, hi-IN, ar-SA, ru-RU, zh-CN, nl-NL, id-ID, ta-IN, fa-IR, en-IE, en-AB, en-WL, pt-PT, te-IN, tr-TR, de-CH, he-IL, ms-MY, ja-JP, ar-AE
+        media: { # required
+          media_file_uri: "s3://#{@bucket_name}/#{@key}",
+        },
+        settings: {
+          show_speaker_labels: true,
+          max_speaker_labels: 2,
+        },
+        content_redaction: {
+          redaction_type: "PII", # required, accepts PII
+          redaction_output: "redacted", # required, accepts redacted, redacted_and_unredacted
+        },
+      })
+      status = resp.transcription_job.transcription_job_status
+      render json:{ message: "Transcription started"}
     else
       render json:{error: upload.errors}
     end
@@ -124,11 +146,9 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   # Need for audio upload to S3
-  def set_s3_object
-    s3 = Aws::S3::Resource.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])  
-    bucket_name = ENV["AWS_BUCKET_NAME"]
-    @key= "audio_file.mp3"
-    @s3_obj = s3.bucket(bucket_name).object(@key)
+  def set_s3_resource
+    @s3 = Aws::S3::Resource.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])  
+    @bucket_name = ENV["AWS_BUCKET_NAME"]
   end
 
   # Remove tags coming with the raw description
