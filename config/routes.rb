@@ -9,8 +9,8 @@ Rails.application.routes.draw do
       patch 'dashboard/edit', to: 'podcasts#update'
       get "landing/:subdomain", to: "podcasts#landing_page"
       get "landing/:subdomain/:id", to: "podcasts#landing_page_single_episode"
-      get "uploadaudio", to: "podcasts#upload_audio_for_transcription"
-      get "gettranscription", to: "podcasts#download_transcription"
+      post "uploadaudio", to: "episodes#upload_audio_for_transcription"
+      get "gettranscription", to: "episodes#download_transcription"
       get "fetch_instagram/:podcast_id", to: "podcasts#fetch_instagram"
     end
   end
