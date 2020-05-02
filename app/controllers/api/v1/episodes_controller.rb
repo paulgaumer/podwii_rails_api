@@ -34,26 +34,29 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       IO.copy_stream(URI.open('https://podwii-transcripts.s3.eu-west-2.amazonaws.com/pod-test.mp3'), write_stream)
     end
     if upload
-      obj_url = @s3.bucket(@bucket_name).object(@key).public_url
-    
       client = Aws::TranscribeService::Client.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
-    binding.pry
 
+      settings = {}
+      if @speakers > 1 
+        settings = {
+          show_speaker_labels: true,
+          max_speaker_labels: @speakers,
+        }
+      end
+      
+      # binding.pry
       resp = client.start_transcription_job({
         transcription_job_name: @key, # required
-        language_code: "en-US", # required, accepts en-US, es-US, en-AU, fr-CA, en-GB, de-DE, pt-BR, fr-FR, it-IT, ko-KR, es-ES, en-IN, hi-IN, ar-SA, ru-RU, zh-CN, nl-NL, id-ID, ta-IN, fa-IR, en-IE, en-AB, en-WL, pt-PT, te-IN, tr-TR, de-CH, he-IL, ms-MY, ja-JP, ar-AE
+        language_code: "en-US", # required
         media: { # required
           media_file_uri: "s3://#{@bucket_name}/#{@key}",
         },
-        settings: {
-          show_speaker_labels: true,
-          max_speaker_labels: @speakers,
-        },
+        settings: settings,
         content_redaction: {
-          redaction_type: "PII", # required, accepts PII
-          redaction_output: "redacted", # required, accepts redacted, redacted_and_unredacted
+          redaction_type: "PII", # required
+          redaction_output: "redacted", # required
         },
-      })
+        })
       status = resp.transcription_job.transcription_job_status
       render json:{ status: status, transcription_job_name: @key}
     else
@@ -90,7 +93,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
   end
 
   def episode_params
-    params.require(:episode).permit(:podcast_id, :guid, :title, :summary, :show_notes, :transcription, :enclosure, :cover_image, :podcast_title)
+    params.require(:episode).permit(:podcast_id, :guid, :title, :summary, :show_notes, :transcription, :podcast_title, :db_id, enclosure: [:length, :type, :url, :duration, :pubDate], cover_image: [:link, :title, :url])
     params.require(:transcription).permit(:speakers)
   end
 
