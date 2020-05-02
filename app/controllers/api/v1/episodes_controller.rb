@@ -8,6 +8,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
 
   def create
     @episode = Episode.new(episode_params)
+ 
     authorize @episode
     if @episode.save
       head :no_content
@@ -43,8 +44,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
           max_speaker_labels: @speakers,
         }
       end
-      
-      # binding.pry
+  
       resp = client.start_transcription_job({
         transcription_job_name: @key, # required
         language_code: "en-US", # required
@@ -52,10 +52,6 @@ class Api::V1::EpisodesController < Api::V1::BaseController
           media_file_uri: "s3://#{@bucket_name}/#{@key}",
         },
         settings: settings,
-        content_redaction: {
-          redaction_type: "PII", # required
-          redaction_output: "redacted", # required
-        },
         })
       status = resp.transcription_job.transcription_job_status
       render json:{ status: status, transcription_job_name: @key}
@@ -68,15 +64,15 @@ class Api::V1::EpisodesController < Api::V1::BaseController
   def download_transcription
     client = Aws::TranscribeService::Client.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
     resp = client.get_transcription_job({
-      transcription_job_name: "test_transcribe.mp3-4ec0fca3-7849-41df-96b6-07a793c60f3b"
+      transcription_job_name: "TranscriptionJobTestAudio.mp3"
     })
     status = resp.transcription_job.transcription_job_status
-
     if status === "COMPLETED"
       transcription_serialized = URI.open(resp.transcription_job.transcript.transcript_file_uri).read
       transcription_file = JSON.parse(transcription_serialized)
       transcript = transcription_file["results"]["transcripts"][0]["transcript"]
       render json: {
+        status: status,
         transcript: transcript
       }
     else
@@ -93,7 +89,9 @@ class Api::V1::EpisodesController < Api::V1::BaseController
   end
 
   def episode_params
-    params.require(:episode).permit(:podcast_id, :guid, :title, :summary, :show_notes, :transcription, :podcast_title, :db_id, enclosure: [:length, :type, :url, :duration, :pubDate], cover_image: [:link, :title, :url])
+    params.require(:episode).permit(:podcast_id, :guid, :title, :summary, :show_notes, :transcription, :podcast_title, enclosure: [:length, :type, :url, :duration, :pubDate], cover_image: [:link, :title, :url])
+  end
+  def transcription_params
     params.require(:transcription).permit(:speakers)
   end
 

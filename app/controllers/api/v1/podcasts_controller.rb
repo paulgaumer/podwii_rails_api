@@ -169,7 +169,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
             pubDate: ep_rss.pubDate
           },
           podcast_title: channel.title,
-          db_id: ep_db ? ep_db.id : nil,
+          id: ep_db ? ep_db.id : nil,
         }
 
       # Create podcast object based on existing data in DB
