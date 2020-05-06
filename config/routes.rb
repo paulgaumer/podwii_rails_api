@@ -4,6 +4,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :podcasts
       resources :episodes, only: [:create, :update]
+      resources :crm_items, only: [:create]
       get 'dashboard', to: 'podcasts#dashboard'
       get 'dashboard/:id', to: 'podcasts#dashboard_single'
       patch 'dashboard/edit', to: 'podcasts#update'

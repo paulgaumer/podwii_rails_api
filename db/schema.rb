@@ -10,10 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_01_133852) do
+ActiveRecord::Schema.define(version: 2020_05_06_204954) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "crm_items", force: :cascade do |t|
+    t.string "email"
+    t.datetime "optin_date"
+    t.bigint "podcast_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["podcast_id"], name: "index_crm_items_on_podcast_id"
+  end
 
   create_table "episodes", force: :cascade do |t|
     t.string "title"
@@ -66,6 +75,7 @@ ActiveRecord::Schema.define(version: 2020_05_01_133852) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "crm_items", "podcasts"
   add_foreign_key "episodes", "podcasts"
   add_foreign_key "podcasts", "users"
 end
