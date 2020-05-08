@@ -5,6 +5,7 @@ Rails.application.routes.draw do
       resources :podcasts
       resources :episodes, only: [:create, :update]
       resources :crm_items, only: [:index, :create]
+      resources :themes, only: [:update]
       get 'dashboard', to: 'podcasts#dashboard'
       get 'dashboard/:id', to: 'podcasts#dashboard_single'
       patch 'dashboard/edit', to: 'podcasts#update'
