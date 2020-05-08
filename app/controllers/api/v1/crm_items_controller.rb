@@ -1,6 +1,12 @@
 class Api::V1::CrmItemsController < Api::V1::BaseController
 before_action :set_podcast, only: [ :create ]
 
+def index
+  @crm_items = policy_scope(CrmItem)
+  # binding.pry
+  render json: {items: @crm_items}
+end
+
 def create
   @crm_item = @podcast.crm_items.new(episode_params)
   authorize @crm_item
