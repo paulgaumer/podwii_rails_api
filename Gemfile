@@ -33,7 +33,10 @@ gem 'devise'
 gem "devise-jwt"
 gem "rack-cors"
 gem 'aws-sdk'
+gem "google-cloud"
+gem "google-cloud-speech"
 gem 'rss'
+gem "down", "~> 5.0"
 
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass'
