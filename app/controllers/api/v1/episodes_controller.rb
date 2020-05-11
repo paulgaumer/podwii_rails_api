@@ -3,15 +3,14 @@ require "json"
 require "down"
 require "google/cloud/speech"
 
-
 class Api::V1::EpisodesController < Api::V1::BaseController
-  before_action :set_episode, only: [ :update ]
-  before_action :set_s3_resource, only: [:upload_audio_for_transcription]
+  before_action :set_episode, only: [:update]
+  # before_action :set_s3_resource, only: [:upload_audio_for_transcription]
   skip_after_action :verify_authorized, only: [:upload_audio_for_transcription, :download_transcription]
 
   def create
     @episode = Episode.new(episode_params)
- 
+
     authorize @episode
     if @episode.save
       head :no_content
@@ -41,13 +40,13 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     #   client = Aws::TranscribeService::Client.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
 
     #   settings = {}
-    #   if @speakers > 1 
+    #   if @speakers > 1
     #     settings = {
     #       show_speaker_labels: true,
     #       max_speaker_labels: @speakers,
     #     }
     #   end
-  
+
     #   resp = client.start_transcription_job({
     #     transcription_job_name: @key, # required
     #     language_code: "en-US", # required
@@ -63,30 +62,27 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     # end
 
     speech = Google::Cloud::Speech.new
-    config = { language_code:     "en-US",
-                model: "video",
-                diarization_config: {
-                  "enable_speaker_diarization": true,
-                  "min_speaker_count": 2,
-                  "max_speaker_count": 2,
-                }
-              }
-    # audiomp3 = { uri: "gs://podwii-audio-files/pod-test.mp3"}
-    
-    url = "https://anchor.fm/s/f0fca6c/podcast/play/13417950/sponsor/a1hummk/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2020-05-07%2F17ab44bdfa561174a3c9eca2cb4c6f2a.m4a"
-    tempfile = Down.download(url, destination: "./tempaudio/test#{File.extname(url)}")
-    
-    binding.pry
-    
+    config = { language_code: "en-US",
+              model: "video",
+              enable_automatic_punctuation: true,
+              diarization_config: {
+      "enable_speaker_diarization": true,
+      "min_speaker_count": 2,
+      "max_speaker_count": 2,
+    } }
+    audio = { uri: "gs://podwii-audio-files/pod-test.wav" }
 
-    system("ffmpeg -i ./tempaudio/audio.mp3 ./tempaudio/pod.flac")
-    FileUtils.rm "./tempaudio/audio.mp3"
+    # url = "https://anchor.fm/s/f0fca6c/podcast/play/13417950/sponsor/a1hummk/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2020-05-07%2F17ab44bdfa561174a3c9eca2cb4c6f2a.m4a"
+    # tempfile = Down.download(url, destination: "./tempaudio/test#{File.extname(url)}")
+
+    # system("ffmpeg -i ./tempaudio/audio.mp3 ./tempaudio/pod.flac")
+    # FileUtils.rm "./tempaudio/audio.mp3"
 
     operation = speech.long_running_recognize config, audio
 
     puts "OPERATION STARTED"
 
-    p operation
+    # p operation
 
     operation.wait_until_done!
 
@@ -96,36 +92,44 @@ class Api::V1::EpisodesController < Api::V1::BaseController
 
     p results
 
-    if !results.empty?
-      alternatives = results.first.alternatives
-      alternatives.each do |alternative|
-        puts "Transcription: #{alternative.transcript}"
-      end
-    end
+    output_one = parse_transcription(results.first.alternatives.first.words)
+    p output_one
+    output_two = parse_transcription(results.last.alternatives.first.words)
+    p output_two
 
+    # results.each do |result|
+    #   # binding.pry
+    #   output = parse_transcription(result.alternatives.first.words)
+    #   p output
+    # end
 
+    # if !results.empty?
+    #   alternatives = results.first.alternatives
+    #   alternatives.each do |alternative|
+    #     puts "Transcription: #{alternative.transcript}"
+    #   end
+    # end
   end
 
   # Retrieve transcription from AWS Transcribe
-  def download_transcription
-    client = Aws::TranscribeService::Client.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
-    resp = client.get_transcription_job({
-      transcription_job_name: "TranscriptionJobTestAudio.mp3"
-    })
-    status = resp.transcription_job.transcription_job_status
-    if status === "COMPLETED"
-      transcription_serialized = URI.open(resp.transcription_job.transcript.transcript_file_uri).read
-      transcription_file = JSON.parse(transcription_serialized)
-      transcript = transcription_file["results"]["transcripts"][0]["transcript"]
-      render json: {
-        status: status,
-        transcript: transcript
-      }
-    else
-      render json: {status: status}
-    end
-
-  end
+  # def download_transcription
+  #   client = Aws::TranscribeService::Client.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"], secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
+  #   resp = client.get_transcription_job({
+  #     transcription_job_name: "TranscriptionJobTestAudio.mp3",
+  #   })
+  #   status = resp.transcription_job.transcription_job_status
+  #   if status === "COMPLETED"
+  #     transcription_serialized = URI.open(resp.transcription_job.transcript.transcript_file_uri).read
+  #     transcription_file = JSON.parse(transcription_serialized)
+  #     transcript = transcription_file["results"]["transcripts"][0]["transcript"]
+  #     render json: {
+  #       status: status,
+  #       transcript: transcript,
+  #     }
+  #   else
+  #     render json: { status: status }
+  #   end
+  # end
 
   private
 
@@ -137,6 +141,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
   def episode_params
     params.require(:episode).permit(:podcast_id, :guid, :title, :summary, :show_notes, :transcription, :podcast_title, enclosure: [:length, :type, :url, :duration, :pubDate], cover_image: [:link, :title, :url])
   end
+
   def transcription_params
     params.require(:transcription).permit(:speakers)
   end
@@ -147,9 +152,48 @@ class Api::V1::EpisodesController < Api::V1::BaseController
   end
 
   # Need for audio upload to S3
-  def set_s3_resource
-    @s3 = Aws::S3::Resource.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"],secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])  
-    @bucket_name = ENV["AWS_BUCKET_NAME"]
-  end
+  # def set_s3_resource
+  #   @s3 = Aws::S3::Resource.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"], secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
+  #   @bucket_name = ENV["AWS_BUCKET_NAME"]
+  # end
 
+  def parse_transcription(input)
+    speaker = nil
+    terms = []
+    time_start = "0:00"
+    time_end = nil
+    final = []
+    res = ""
+
+    input.each_with_index do |item, i|
+      # binding.pry
+      if speaker === nil
+        speaker = item.speaker_tag
+        terms << item.word
+        if i === (input.length - 1)
+          time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
+          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{time_start} - #{time_end}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
+          res = res + ind
+        end
+      else
+        if item.speaker_tag === speaker
+          terms << item.word
+          if i === (input.length - 1)
+            time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
+            ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{time_start} - #{time_end}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
+            res = res + ind
+          end
+        else
+          time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
+          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{time_start} - #{time_end}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
+          res = res + ind
+          speaker = item.speaker_tag
+          time_start = "#{item.start_time.seconds}:#{item.start_time.nanos.to_s[0..1]}"
+          terms = []
+          terms << item.word
+        end
+      end
+    end
+    return res
+  end
 end
