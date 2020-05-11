@@ -151,7 +151,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
   def parse_transcription(input)
     speaker = nil
     terms = []
-    time_start = "0:00"
+    time_start = 0
     time_end = nil
     final = []
     res = ""
@@ -161,11 +161,12 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     end
 
     def format_time(time)
+      # binding.pry
       if time <= 60
-        return time
+        return "00:#{time <= 9 ? "0" : ""}#{time}"
       else
         t = to_min(time)
-        return "#{t[0]}:#{t[1] <= 9 ? "0" : ""}#{t[1]}"
+        return "#{t[0] <= 9 ? "0" : ""}#{t[0]}:#{t[1] <= 9 ? "0" : ""}#{t[1]}"
       end
     end
 
@@ -174,7 +175,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       if speaker === nil
         speaker = item.speaker_tag
         terms << item.word
-        time_end = "#{item.end_time.seconds}"
+        time_end = item.end_time.seconds
         if i === (input.length - 1)
           ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{format_time(time_start)} - #{format_time(time_end)}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
           res = res + ind
@@ -182,7 +183,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       else
         if item.speaker_tag === speaker
           terms << item.word
-          time_end = "#{item.end_time.seconds}"
+          time_end = item.end_time.seconds
           if i === (input.length - 1)
             ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{format_time(time_start)} - #{format_time(time_end)}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
             res = res + ind
@@ -191,10 +192,10 @@ class Api::V1::EpisodesController < Api::V1::BaseController
           ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{format_time(time_start)} - #{format_time(time_end)}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
           res = res + ind
           speaker = item.speaker_tag
-          time_start = "#{item.start_time.seconds}"
+          time_start = item.start_time.seconds
           terms = []
           terms << item.word
-          time_end = "#{item.end_time.seconds}"
+          time_end = item.end_time.seconds
         end
       end
     end
