@@ -48,7 +48,6 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       else
         render_error
       end
-      end
     else
       puts "EPISODE EXISTS"
       @episode = Episode.find(params[:transcription][:ep_id])
