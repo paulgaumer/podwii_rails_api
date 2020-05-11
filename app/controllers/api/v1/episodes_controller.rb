@@ -5,7 +5,8 @@ require "google/cloud/speech"
 
 class Api::V1::EpisodesController < Api::V1::BaseController
   before_action :set_episode, only: [:update]
-  skip_before_action :verify_authorized, only: [:upload_audio_for_transcription, :download_transcription]
+  skip_before_action :verify_authenticity_token, only: [:upload_audio_for_transcription, :download_transcription]
+  skip_after_action :verify_authorized, only: [:upload_audio_for_transcription, :download_transcription]
 
   def create
     @episode = Episode.new(episode_params)
