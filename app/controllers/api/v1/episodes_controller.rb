@@ -28,20 +28,29 @@ class Api::V1::EpisodesController < Api::V1::BaseController
 
   # Upload episode's audio to Google Speech-To-Text
   def upload_audio_for_transcription
+    puts "IN UPLOAD AUDIO FUNCTION"
     @speakers_number = params[:transcription][:speakers]
     if params[:transcription][:ep_id] === nil
+      puts "EPISODE DOESN'T EXIST"
       @episode = Episode.new(episode_params)
       if @episode.save
+        puts "EPISODE CREATED"
         final_transcription = get_transcription()
+        puts "EPISODE TRANSCRIPTED"
         @episode.transcription = final_transcription
         if @episode.save
+          puts "EPISODE SAVED"
           render json: { message: "Transcription saved" }
         else
+          puts "EPISODE SAVE ERROR"
           render_error
         end
+      else
+        render_error
+      end
       end
     else
-      p "EPISODE EXISTS"
+      puts "EPISODE EXISTS"
       @episode = Episode.find(params[:transcription][:ep_id])
       final_transcription = get_transcription()
       @episode.transcription = final_transcription
