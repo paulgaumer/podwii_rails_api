@@ -70,7 +70,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       "max_speaker_count": @speakers_number,
       "min_speaker_count": @speakers_number,
     } }
-    audio = { uri: "gs://podwii-audio-files/fariza-test2.flac" }
+    audio = { uri: "gs://podwii-audio-files/pod-test.wav" }
 
     # url = "https://anchor.fm/s/f0fca6c/podcast/play/13417950/sponsor/a1hummk/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2020-05-07%2F17ab44bdfa561174a3c9eca2cb4c6f2a.m4a"
     # tempfile = Down.download(url, destination: "./tmp/tmp/tempaudio/test#{File.extname(url)}")
@@ -156,32 +156,45 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     final = []
     res = ""
 
+    def to_min(sec)
+      mm, ss = sec.divmod(60)
+    end
+
+    def format_time(time)
+      if time <= 60
+        return time
+      else
+        t = to_min(time)
+        return "#{t[0]}:#{t[1] <= 9 ? "0" : ""}#{t[1]}"
+      end
+    end
+
     input.each_with_index do |item, i|
       # binding.pry
       if speaker === nil
         speaker = item.speaker_tag
         terms << item.word
-        time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
+        time_end = "#{item.end_time.seconds}"
         if i === (input.length - 1)
-          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{time_start} - #{time_end}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
+          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{format_time(time_start)} - #{format_time(time_end)}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
           res = res + ind
         end
       else
         if item.speaker_tag === speaker
           terms << item.word
-          time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
+          time_end = "#{item.end_time.seconds}"
           if i === (input.length - 1)
-            ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{time_start} - #{time_end}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
+            ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{format_time(time_start)} - #{format_time(time_end)}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
             res = res + ind
           end
         else
-          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{time_start} - #{time_end}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
+          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{format_time(time_start)} - #{format_time(time_end)}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
           res = res + ind
           speaker = item.speaker_tag
-          time_start = "#{item.start_time.seconds}:#{item.start_time.nanos.to_s[0..1]}"
+          time_start = "#{item.start_time.seconds}"
           terms = []
           terms << item.word
-          time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
+          time_end = "#{item.end_time.seconds}"
         end
       end
     end
