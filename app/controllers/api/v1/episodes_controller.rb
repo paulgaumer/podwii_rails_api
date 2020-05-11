@@ -30,7 +30,6 @@ class Api::V1::EpisodesController < Api::V1::BaseController
   # Upload episode's audio to S3
   def upload_audio_for_transcription
     # obj_url = nil
-    # @speakers = params[:transcription][:speakers]
     # @key= "TranscriptionJobTestAudio.mp3"
     # @s3_obj = @s3.bucket(@bucket_name).object(@key)
     # upload = @s3_obj.upload_stream do |write_stream|
@@ -61,28 +60,27 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     #   render json:{error: upload.errors}
     # end
 
+    @speakers_number = params[:transcription][:speakers]
     speech = Google::Cloud::Speech.new
     config = { language_code: "en-US",
               model: "video",
               enable_automatic_punctuation: true,
               diarization_config: {
       "enable_speaker_diarization": true,
-      "min_speaker_count": 2,
-      "max_speaker_count": 2,
+      "max_speaker_count": @speakers_number,
+      "min_speaker_count": @speakers_number,
     } }
-    audio = { uri: "gs://podwii-audio-files/pod-test.wav" }
+    audio = { uri: "gs://podwii-audio-files/fariza-test2.flac" }
 
     # url = "https://anchor.fm/s/f0fca6c/podcast/play/13417950/sponsor/a1hummk/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2020-05-07%2F17ab44bdfa561174a3c9eca2cb4c6f2a.m4a"
-    # tempfile = Down.download(url, destination: "./tempaudio/test#{File.extname(url)}")
+    # tempfile = Down.download(url, destination: "./tmp/tmp/tempaudio/test#{File.extname(url)}")
 
-    # system("ffmpeg -i ./tempaudio/audio.mp3 ./tempaudio/pod.flac")
-    # FileUtils.rm "./tempaudio/audio.mp3"
+    # system("ffmpeg -i ./tmp/tempaudio/audio.mp3 ./tmp/tempaudio/pod.flac")
+    # FileUtils.rm "./tmp/tempaudio/audio.mp3"
 
     operation = speech.long_running_recognize config, audio
 
     puts "OPERATION STARTED"
-
-    # p operation
 
     operation.wait_until_done!
 
@@ -92,16 +90,15 @@ class Api::V1::EpisodesController < Api::V1::BaseController
 
     p results
 
-    output_one = parse_transcription(results.first.alternatives.first.words)
-    p output_one
-    output_two = parse_transcription(results.last.alternatives.first.words)
-    p output_two
+    results.each do |result|
+      out = parse_transcription(result.alternatives.first.words)
+      p out
+    end
 
-    # results.each do |result|
-    #   # binding.pry
-    #   output = parse_transcription(result.alternatives.first.words)
-    #   p output
-    # end
+    # output_one = parse_transcription(results.first.alternatives.first.words)
+    # p output_one
+    # output_two = parse_transcription(results.last.alternatives.first.words)
+    # p output_two
 
     # if !results.empty?
     #   alternatives = results.first.alternatives
@@ -151,12 +148,6 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       status: :unprocessable_entity
   end
 
-  # Need for audio upload to S3
-  # def set_s3_resource
-  #   @s3 = Aws::S3::Resource.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"], secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
-  #   @bucket_name = ENV["AWS_BUCKET_NAME"]
-  # end
-
   def parse_transcription(input)
     speaker = nil
     terms = []
@@ -170,30 +161,36 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       if speaker === nil
         speaker = item.speaker_tag
         terms << item.word
+        time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
         if i === (input.length - 1)
-          time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
           ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{time_start} - #{time_end}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
           res = res + ind
         end
       else
         if item.speaker_tag === speaker
           terms << item.word
+          time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
           if i === (input.length - 1)
-            time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
             ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{time_start} - #{time_end}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
             res = res + ind
           end
         else
-          time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
           ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{time_start} - #{time_end}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
           res = res + ind
           speaker = item.speaker_tag
           time_start = "#{item.start_time.seconds}:#{item.start_time.nanos.to_s[0..1]}"
           terms = []
           terms << item.word
+          time_end = "#{item.end_time.seconds}:#{item.end_time.nanos.to_s[0..1]}"
         end
       end
     end
     return res
   end
+
+  # Need for audio upload to S3
+  # def set_s3_resource
+  #   @s3 = Aws::S3::Resource.new(region: ENV["AWS_REGION"], access_key_id: ENV["AWS_ACCESS_KEY_ID"], secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
+  #   @bucket_name = ENV["AWS_BUCKET_NAME"]
+  # end
 end
