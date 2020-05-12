@@ -134,10 +134,13 @@ class Api::V1::EpisodesController < Api::V1::BaseController
 
   def get_transcription
     puts "IN GET TRANSCRIPTION FUNCTION"
+
     speech = Google::Cloud::Speech.new do |config|
-      config.credentials = ENV["GOOGLE_APPLICATION_CREDENTIALS"]
+      config.credentials = JSON.parse(ENV["GOOGLE_APPLICATION_CREDENTIALS"])
     end
+
     puts "INIT NEW GOOGLE SPEECH"
+
     config = { language_code: "en-US",
               model: "video",
               enable_automatic_punctuation: true,
@@ -146,6 +149,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       "max_speaker_count": @speakers_number,
       "min_speaker_count": @speakers_number,
     } }
+
     audio = { uri: "gs://podwii-audio-files/pod-test.wav" }
     operation = speech.long_running_recognize config, audio
     puts "OPERATION STARTED"
