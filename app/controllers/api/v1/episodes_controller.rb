@@ -171,6 +171,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     system("ffmpeg -i ./tmp/audiotrans/#{dl_file_name}#{dl_file_ext} -ac 1 ./tmp/audiotrans/#{dl_file_name}.flac")
     FileUtils.rm "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}"
     file = bucket.create_file "./tmp/audiotrans/#{dl_file_name}.flac", "#{dl_file_name}.flac"
+    FileUtils.rm "./tmp/audiotrans/#{dl_file_name}.flac"
     
     puts "UPLOADED TO GOOGLE STORAGE: #{file.name}"
     audio = { uri: "gs://#{bucket_name}/#{dl_file_name}.flac" }
@@ -180,7 +181,9 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     operation.wait_until_done!
     raise operation.results.message if operation.error?
     results = operation.response.results
+    puts "OPERATION RESULTS RECEIVED"
     final_transcription = parse_transcription(results.last.alternatives.first.words)
+    file.delete
     return final_transcription
 
     # if !results.empty?
