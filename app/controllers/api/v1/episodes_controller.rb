@@ -152,7 +152,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
 
     bucket_name = "podwii-audio-source"
     bucket = storage.bucket bucket_name, skip_lookup: true
-    puts "FOUND BUCKET"
+    puts "FOUND BUCKET!"
 
     config = { language_code: "en-US",
               model: "video",
