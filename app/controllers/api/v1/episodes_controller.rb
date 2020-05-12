@@ -134,7 +134,9 @@ class Api::V1::EpisodesController < Api::V1::BaseController
 
   def get_transcription
     puts "IN GET TRANSCRIPTION FUNCTION"
-    speech = Google::Cloud::Speech.new
+    speech = Google::Cloud::Speech.new do |config|
+      config.credentials = ENV["GOOGLE_APPLICATION_CREDENTIALS"]
+    end
     puts "INIT NEW GOOGLE SPEECH"
     config = { language_code: "en-US",
               model: "video",
