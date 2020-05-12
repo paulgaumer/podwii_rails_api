@@ -166,8 +166,11 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     puts "DECLARED CONFIG"
 
     url = "https://flex.acast.com/www.scientificamerican.com/podcast/podcast.mp3?fileId=2A1EE68D-18E6-4E3B-BB1FA3C50BE5E395"
+    puts "DECLARED URL"
     dl_file_name = "#{SecureRandom.urlsafe_base64}"
+    puts "DECLARED DL_FILE_NAME"
     dl_file_ext = "#{File.extname(url)}"
+    puts "DECLARED DL_FILE_EXT"
     tempfile = Down.download(url, destination: "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}")
 
     puts "DOWNLOADED SOURCE AUDIO"
