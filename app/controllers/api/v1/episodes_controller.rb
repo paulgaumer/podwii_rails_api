@@ -136,7 +136,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     puts "IN GET TRANSCRIPTION FUNCTION"
 
     speech = Google::Cloud::Speech.new do |config|
-      config.credentials = JSON.parse(ENV["GOOGLE_APPLICATION_CREDENTIALS"])
+      config.credentials: JSON.parse(ENV["GOOGLE_APPLICATION_CREDENTIALS"])
     end
 
     puts "INIT NEW GOOGLE SPEECH"
