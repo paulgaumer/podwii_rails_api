@@ -1,7 +1,7 @@
 require "open-uri"
 require "json"
 require "down"
-require "google/cloud/speech"
+require "google/cloud/speech/v1/speech"
 
 class Api::V1::EpisodesController < Api::V1::BaseController
   before_action :set_episode, only: [:update]
@@ -135,8 +135,8 @@ class Api::V1::EpisodesController < Api::V1::BaseController
   def get_transcription
     puts "IN GET TRANSCRIPTION FUNCTION"
 
-    speech = Google::Cloud::Speech.new do |config|
-      config.credentials: JSON.parse(ENV["GOOGLE_APPLICATION_CREDENTIALS"])
+    speech = ::Google::Cloud::Speech::V1::Speech::Client.new do |config|
+      config.credentials = JSON.parse(ENV["GOOGLE_APPLICATION_CREDENTIALS"])
     end
 
     puts "INIT NEW GOOGLE SPEECH"
@@ -151,7 +151,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     } }
 
     audio = { uri: "gs://podwii-audio-files/pod-test.wav" }
-    operation = speech.long_running_recognize config, audio
+    operation = speech.long_running_recognize config: config, audio: audio
     puts "OPERATION STARTED"
     operation.wait_until_done!
     raise operation.results.message if operation.error?

@@ -32,9 +32,9 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'devise'
 gem "devise-jwt"
 gem "rack-cors"
-gem 'aws-sdk'
-gem "google-cloud"
-gem "google-cloud-speech"
+# gem 'aws-sdk'
+# gem "google-cloud"
+gem "google-cloud-speech", ">= 1"
 gem 'rss'
 gem "down", "~> 5.0"
 
