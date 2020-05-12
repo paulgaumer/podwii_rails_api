@@ -33,7 +33,7 @@ gem 'devise'
 gem "devise-jwt"
 gem "rack-cors"
 # gem 'aws-sdk'
-# gem "google-cloud"
+gem "google-cloud-storage"
 gem "google-cloud-speech", ">= 1"
 gem 'rss'
 gem "down", "~> 5.0"

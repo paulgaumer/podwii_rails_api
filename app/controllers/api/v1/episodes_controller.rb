@@ -1,6 +1,7 @@
 require "open-uri"
 require "json"
 require "down"
+require "google/cloud/storage"
 require "google/cloud/speech/v1/speech"
 
 class Api::V1::EpisodesController < Api::V1::BaseController
@@ -141,6 +142,16 @@ class Api::V1::EpisodesController < Api::V1::BaseController
 
     puts "INIT NEW GOOGLE SPEECH"
 
+    creds = Google::Cloud::Storage::Credentials.new JSON.parse(ENV["GOOGLE_APPLICATION_CREDENTIALS"])
+
+    storage = Google::Cloud::Storage.new(
+      project_id: ENV["CLOUD_PROJECT_ID"],
+      credentials: creds,
+    )
+    puts "INIT NEW GOOGLE STORAGE"
+    bucket = storage.bucket "podwii-audio-files"
+    puts "FOUND BUCKET"
+
     config = { language_code: "en-US",
               model: "video",
               enable_automatic_punctuation: true,
@@ -150,20 +161,32 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       "min_speaker_count": @speakers_number,
     } }
 
-    audio = { uri: "gs://podwii-audio-files/pod-test.wav" }
-    operation = speech.long_running_recognize config: config, audio: audio
-    puts "OPERATION STARTED"
-    operation.wait_until_done!
-    raise operation.results.message if operation.error?
-    results = operation.response.results
-    final_transcription = parse_transcription(results.last.alternatives.first.words)
-    return final_transcription
+    # audio = { uri: "gs://podwii-audio-files/pod-test.wav" }
+    url = "https://flex.acast.com/www.scientificamerican.com/podcast/podcast.mp3?fileId=2A1EE68D-18E6-4E3B-BB1FA3C50BE5E395"
+    dl_file_name = "#{SecureRandom.urlsafe_base64}"
+    dl_file_ext = "#{File.extname(url)}"
+    tempfile = Down.download(url, destination: "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}")
 
-    # url = "https://anchor.fm/s/f0fca6c/podcast/play/13417950/sponsor/a1hummk/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2020-05-07%2F17ab44bdfa561174a3c9eca2cb4c6f2a.m4a"
-    # tempfile = Down.download(url, destination: "./tmp/tmp/tempaudio/test#{File.extname(url)}")
+    system("ffmpeg -i ./tmp/audiotrans/#{dl_file_name}#{dl_file_ext} ./tmp/audiotrans/#{dl_file_name}.flac")
+    FileUtils.rm "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}"
+    file = bucket.create_file "./tmp/audiotrans/#{dl_file_name}.flac", ""
 
-    # system("ffmpeg -i ./tmp/tempaudio/audio.mp3 ./tmp/tempaudio/pod.flac")
-    # FileUtils.rm "./tmp/tempaudio/audio.mp3"
+    puts "Uploaded #{file.name}"
+
+    # audio_file = File.binread "./tmp/audiotrans/#{dl_file_name}.flac"
+    # audio = {
+    #   content: audio_file,
+    # }
+
+    binding.pry
+
+    # operation = speech.long_running_recognize config: config, audio: audio
+    # puts "OPERATION STARTED"
+    # operation.wait_until_done!
+    # raise operation.results.message if operation.error?
+    # results = operation.response.results
+    # final_transcription = parse_transcription(results.last.alternatives.first.words)
+    # return final_transcription
 
     # if !results.empty?
     #   alternatives = results.first.alternatives
