@@ -149,7 +149,9 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       credentials: creds,
     )
     puts "INIT NEW GOOGLE STORAGE"
-    bucket = storage.bucket "podwii-audio-files"
+
+    bucket_name = "podwii-audio-source"
+    bucket = storage.bucket bucket_name, skip_lookup: true
     puts "FOUND BUCKET"
 
     config = { language_code: "en-US",
@@ -161,32 +163,25 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       "min_speaker_count": @speakers_number,
     } }
 
-    # audio = { uri: "gs://podwii-audio-files/pod-test.wav" }
     url = "https://flex.acast.com/www.scientificamerican.com/podcast/podcast.mp3?fileId=2A1EE68D-18E6-4E3B-BB1FA3C50BE5E395"
     dl_file_name = "#{SecureRandom.urlsafe_base64}"
     dl_file_ext = "#{File.extname(url)}"
     tempfile = Down.download(url, destination: "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}")
-
-    system("ffmpeg -i ./tmp/audiotrans/#{dl_file_name}#{dl_file_ext} ./tmp/audiotrans/#{dl_file_name}.flac")
+    
+    system("ffmpeg -i ./tmp/audiotrans/#{dl_file_name}#{dl_file_ext} -ac 1 ./tmp/audiotrans/#{dl_file_name}.flac")
     FileUtils.rm "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}"
-    file = bucket.create_file "./tmp/audiotrans/#{dl_file_name}.flac", ""
+    file = bucket.create_file "./tmp/audiotrans/#{dl_file_name}.flac", "#{dl_file_name}.flac"
+    
+    puts "UPLOADED TO GOOGLE STORAGE: #{file.name}"
+    audio = { uri: "gs://#{bucket_name}/#{dl_file_name}.flac" }
 
-    puts "Uploaded #{file.name}"
-
-    # audio_file = File.binread "./tmp/audiotrans/#{dl_file_name}.flac"
-    # audio = {
-    #   content: audio_file,
-    # }
-
-    binding.pry
-
-    # operation = speech.long_running_recognize config: config, audio: audio
-    # puts "OPERATION STARTED"
-    # operation.wait_until_done!
-    # raise operation.results.message if operation.error?
-    # results = operation.response.results
-    # final_transcription = parse_transcription(results.last.alternatives.first.words)
-    # return final_transcription
+    operation = speech.long_running_recognize config: config, audio: audio
+    puts "OPERATION STARTED"
+    operation.wait_until_done!
+    raise operation.results.message if operation.error?
+    results = operation.response.results
+    final_transcription = parse_transcription(results.last.alternatives.first.words)
+    return final_transcription
 
     # if !results.empty?
     #   alternatives = results.first.alternatives
