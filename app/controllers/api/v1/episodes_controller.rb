@@ -5,7 +5,7 @@ require "google/cloud/speech/v1/speech"
 
 class Api::V1::EpisodesController < Api::V1::BaseController
   before_action :set_episode, only: [:update]
-  skip_after_action :verify_authorized, only: [:upload_audio_for_transcription, :download_transcription]
+  skip_after_action :verify_authorized, only: [:upload_audio_for_transcription]
 
   def create
     @episode = Episode.new(episode_params)
@@ -80,131 +80,22 @@ class Api::V1::EpisodesController < Api::V1::BaseController
       status: :unprocessable_entity
   end
 
-  def parse_transcription(input)
-    speaker = nil
-    terms = []
-    time_start = 0
-    time_end = nil
-    final = []
-    res = ""
-
-    def to_min(sec)
-      mm, ss = sec.divmod(60)
-    end
-
-    def format_time(time)
-      if time <= 60
-        return "00:#{time <= 9 ? "0" : ""}#{time}"
-      else
-        t = to_min(time)
-        return "#{t[0] <= 9 ? "0" : ""}#{t[0]}:#{t[1] <= 9 ? "0" : ""}#{t[1]}"
-      end
-    end
-
-    input.each_with_index do |item, i|
-      if speaker === nil
-        speaker = item.speaker_tag
-        terms << item.word
-        time_end = item.end_time.seconds
-        if i === (input.length - 1)
-          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{format_time(time_start)} - #{format_time(time_end)}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
-          res = res + ind
-        end
-      else
-        if item.speaker_tag === speaker
-          terms << item.word
-          time_end = item.end_time.seconds
-          if i === (input.length - 1)
-            ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{format_time(time_start)} - #{format_time(time_end)}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
-            res = res + ind
-          end
-        else
-          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{format_time(time_start)} - #{format_time(time_end)}</p><p id='transcript-content'>#{terms.join(" ")}</p>"
-          res = res + ind
-          speaker = item.speaker_tag
-          time_start = item.start_time.seconds
-          terms = []
-          terms << item.word
-          time_end = item.end_time.seconds
-        end
-      end
-    end
-    return res
-  end
-
   def get_transcription
-    puts "IN GET TRANSCRIPTION FUNCTION"
+    puts "IN GET_TRANSCRIPTION FUNCTION"
 
-    speech = ::Google::Cloud::Speech::V1::Speech::Client.new do |config|
-      config.credentials = JSON.parse(ENV["GOOGLE_APPLICATION_CREDENTIALS"])
+    # url = "https://flex.acast.com/www.scientificamerican.com/podcast/podcast.mp3?fileId=2A1EE68D-18E6-4E3B-BB1FA3C50BE5E395"
+    # audio_src = Transcription::DownloadAudioSource.call(url)
+    # audio_flac = Transcription::ConvertAudioToFlac.call(audio_src)
+    # audio_stored = Transcription::UploadToStorage.call(audio_flac)
+
+    audio_stored = { uri: "gs://podwii-audio-source/pod-test.wav" }
+
+    if @speakers_number > 1
+      transcription = Transcription::InitTranscriptionMulti.call(audio_stored, @speakers_number)
+    else
+      transcription = Transcription::InitTranscriptionSingle.call(audio_stored)
     end
-
-    puts "INIT NEW GOOGLE SPEECH"
-
-    creds = Google::Cloud::Storage::Credentials.new JSON.parse(ENV["GOOGLE_APPLICATION_CREDENTIALS"])
-
-    storage = Google::Cloud::Storage.new(
-      project_id: ENV["CLOUD_PROJECT_ID"],
-      credentials: creds,
-    )
-    puts "INIT NEW GOOGLE STORAGE"
-
-    bucket_name = "podwii-audio-source"
-    bucket = storage.bucket bucket_name, skip_lookup: true
-    puts "FOUND BUCKET"
-
-    config = { language_code: "en-US",
-              model: "video",
-              enable_automatic_punctuation: true,
-              diarization_config: {
-      "enable_speaker_diarization": true,
-      "max_speaker_count": @speakers_number,
-      "min_speaker_count": @speakers_number,
-    } }
-
-    puts "DECLARED CONFIG"
-
-    url = "https://flex.acast.com/www.scientificamerican.com/podcast/podcast.mp3?fileId=2A1EE68D-18E6-4E3B-BB1FA3C50BE5E395"
-    puts "DECLARED URL"
-    dl_file_name = "#{SecureRandom.urlsafe_base64}"
-    puts "DECLARED DL_FILE_NAME"
-    dl_file_ext = "#{File.extname(url)}"
-    puts "DECLARED DL_FILE_EXT"
-    download = open(url)
-    puts "OPENED URL"
-    Rails.root.join('tmp').to_s
-    puts "CREATED TMP FOLDER"
-    IO.copy_stream(download, "./tmp/#{dl_file_name}#{dl_file_ext}")
-
-    puts "DOWNLOADED SOURCE AUDIO"
-    
-    system("ffmpeg -i ./tmp/#{dl_file_name}#{dl_file_ext} -ac 1 ./tmp/#{dl_file_name}.flac")
-    
-    puts "CONVERTED TO FLAC"
-
-    FileUtils.rm "./tmp/#{dl_file_name}#{dl_file_ext}"
-    
-    puts "REMOVED SOURCE FILE"
-
-    file = bucket.create_file "./tmp/#{dl_file_name}.flac", "#{dl_file_name}.flac"
-    
-    puts "UPLOADED FILE TO BUCKET"
-
-    FileUtils.rm "./tmp/#{dl_file_name}.flac"
-    
-    puts "UPLOADED TO GOOGLE STORAGE: #{file.name}"
-
-    audio = { uri: "gs://#{bucket_name}/#{dl_file_name}.flac" }
-
-    operation = speech.long_running_recognize config: config, audio: audio
-    puts "OPERATION STARTED"
-    operation.wait_until_done!
-    raise operation.results.message if operation.error?
-    results = operation.response.results
-    puts "OPERATION RESULTS RECEIVED"
-    final_transcription = parse_transcription(results.last.alternatives.first.words)
-    file.delete
-    return final_transcription
+    return transcription
 
     # if !results.empty?
     #   alternatives = results.first.alternatives
