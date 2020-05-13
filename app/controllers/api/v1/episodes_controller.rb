@@ -171,7 +171,9 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     puts "DECLARED DL_FILE_NAME"
     dl_file_ext = "#{File.extname(url)}"
     puts "DECLARED DL_FILE_EXT"
-    tempfile = Down.download(url, destination: "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}")
+    # tempfile = Down.download(url, destination: "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}")
+    download = open(url)
+    IO.copy_stream(download, "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}")
 
     puts "DOWNLOADED SOURCE AUDIO"
     
