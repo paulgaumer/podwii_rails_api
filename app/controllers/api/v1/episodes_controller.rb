@@ -173,7 +173,9 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     puts "DECLARED DL_FILE_EXT"
     # tempfile = Down.download(url, destination: "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}")
     download = open(url)
-    binding.pry
+    puts "OPENED URL"
+    Dir.mkdir(File.join(Rails.root, 'tmp'))
+    puts "CREATED TMP FOLDER"
     IO.copy_stream(download, "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}")
 
     puts "DOWNLOADED SOURCE AUDIO"
