@@ -36,7 +36,7 @@ gem "rack-cors"
 gem "google-cloud-storage"
 gem "google-cloud-speech", ">= 1"
 gem 'rss'
-gem "down", "~> 5.0"
+# gem "down", "~> 5.0"
 
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass'

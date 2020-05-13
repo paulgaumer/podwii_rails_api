@@ -1,6 +1,5 @@
 require "open-uri"
 require "json"
-require "down"
 require "google/cloud/storage"
 require "google/cloud/speech/v1/speech"
 
@@ -171,7 +170,6 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     puts "DECLARED DL_FILE_NAME"
     dl_file_ext = "#{File.extname(url)}"
     puts "DECLARED DL_FILE_EXT"
-    # tempfile = Down.download(url, destination: "./tmp/#{dl_file_name}#{dl_file_ext}")
     download = open(url)
     puts "OPENED URL"
     Rails.root.join('tmp').to_s
