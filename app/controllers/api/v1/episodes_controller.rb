@@ -171,28 +171,28 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     puts "DECLARED DL_FILE_NAME"
     dl_file_ext = "#{File.extname(url)}"
     puts "DECLARED DL_FILE_EXT"
-    # tempfile = Down.download(url, destination: "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}")
+    # tempfile = Down.download(url, destination: "./tmp/#{dl_file_name}#{dl_file_ext}")
     download = open(url)
     puts "OPENED URL"
-    Dir.mkdir(File.join(Rails.root, 'tmp'))
+    Rails.root.join('tmp').to_s
     puts "CREATED TMP FOLDER"
-    IO.copy_stream(download, "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}")
+    IO.copy_stream(download, "./tmp/#{dl_file_name}#{dl_file_ext}")
 
     puts "DOWNLOADED SOURCE AUDIO"
     
-    system("ffmpeg -i ./tmp/audiotrans/#{dl_file_name}#{dl_file_ext} -ac 1 ./tmp/audiotrans/#{dl_file_name}.flac")
+    system("ffmpeg -i ./tmp/#{dl_file_name}#{dl_file_ext} -ac 1 ./tmp/#{dl_file_name}.flac")
     
     puts "CONVERTED TO FLAC"
 
-    FileUtils.rm "./tmp/audiotrans/#{dl_file_name}#{dl_file_ext}"
+    FileUtils.rm "./tmp/#{dl_file_name}#{dl_file_ext}"
     
     puts "REMOVED SOURCE FILE"
 
-    file = bucket.create_file "./tmp/audiotrans/#{dl_file_name}.flac", "#{dl_file_name}.flac"
+    file = bucket.create_file "./tmp/#{dl_file_name}.flac", "#{dl_file_name}.flac"
     
     puts "UPLOADED FILE TO BUCKET"
 
-    FileUtils.rm "./tmp/audiotrans/#{dl_file_name}.flac"
+    FileUtils.rm "./tmp/#{dl_file_name}.flac"
     
     puts "UPLOADED TO GOOGLE STORAGE: #{file.name}"
 
