@@ -1,6 +1,6 @@
 class Transcription::ParseTranscriptionResultsMulti
   def self.call(input)
-    puts "IN PARSING"
+    puts "IN PARSING MULTI"
     speaker = ""
     terms = []
     time_start = 0
@@ -17,7 +17,9 @@ class Transcription::ParseTranscriptionResultsMulti
         time_end = item.end_time.seconds
         if i === (input.length - 1)
           # binding.pry
-          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'></p><p id='transcript-content'>#{terms.join(" ")}</p>"
+          content = terms.join(" ")
+          puts "FIRST ROUND CONTENT CREATED"
+          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-content'>#{content}</p>"
           res = res + ind
         end
       else
@@ -27,18 +29,20 @@ class Transcription::ParseTranscriptionResultsMulti
           time_end = item.end_time.seconds
           if i === (input.length - 1)
             # binding.pry
-            ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'></p><p id='transcript-content'>#{terms.join(" ")}</p>"
+            content = terms.join(" ")
+            puts "SAME SPEAKER CONTENT CREATED"
+            ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-content'>#{content}</p>"
             res = res + ind
           end
         else
           # New of Speaker
           # binding.pry
           content = terms.join(" ")
-          puts "CONTENT CREATED"
+          puts "NEW SPEAKER CONTENT CREATED"
           # start = display_timestamp(time_start)
           # puts "START OK"
           # ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{start}</p><p id='transcript-content'>#{content}</p>"
-          ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{start}</p><p id='transcript-content'>#{content}</p>"
+          ind = "<h4 id='transcript-speaker'>Speaker #{speaker.to_s}</h4><p id='transcript-content'>#{content}</p>"
           puts "IND OK"
           res = res + ind
           puts "RES OK"
