@@ -32,7 +32,7 @@ class Transcription::ParseTranscriptionResultsMulti
           end
         else
           # New of Speaker
-          binding.pry
+          # binding.pry
           content = terms.join(" ")
           puts "CONTENT CREATED"
           # start = display_timestamp(time_start)
@@ -59,18 +59,18 @@ class Transcription::ParseTranscriptionResultsMulti
 
   private
 
-  def to_min(sec)
-    binding.pry
-    mm, ss = sec.divmod(60)
-  end
+  # def to_min(sec)
+  #   # binding.pry
+  #   mm, ss = sec.divmod(60)
+  # end
 
-  def display_timestamp(time)
-    binding.pry
-    if time <= 60
-      return "00:#{time <= 9 ? "0" : ""}#{time}"
-    else
-      t = to_min(time)
-      return "#{t[0] <= 9 ? "0" : ""}#{t[0]}:#{t[1] <= 9 ? "0" : ""}#{t[1]}"
-    end
-  end
+  # def display_timestamp(time)
+  #   # binding.pry
+  #   if time <= 60
+  #     return "00:#{time <= 9 ? "0" : ""}#{time}"
+  #   else
+  #     t = to_min(time)
+  #     return "#{t[0] <= 9 ? "0" : ""}#{t[0]}:#{t[1] <= 9 ? "0" : ""}#{t[1]}"
+  #   end
+  # end
 end
