@@ -136,7 +136,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         feed_url: podcast.feed_url,
         cover_image: image,
         episodes: episodes,
-        subdomain: podcast.subdomain,
+        subdomain: podcast.subdomains.first.name,
         instagram_access_token: podcast.instagram_access_token,
         theme: podcast.themes.first
       }
@@ -181,7 +181,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         feed_url: podcast.feed_url,
         cover_image: image,
         episode: episode,
-        subdomain: podcast.subdomain,
+        subdomain: podcast.subdomains.first.name,
         theme: podcast.themes.first
       }
     end
