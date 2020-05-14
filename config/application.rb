@@ -27,6 +27,12 @@ module PodcastsApi
       end
     end
 
+    # For Sentry Debugging Add-on
+    Raven.configure do |config|
+      config.dsn = "https://d8c9488638394af2a8d712e6261120d6:3787a11f56424049ab4942be928e683d@o392685.ingest.sentry.io/5240621"
+    end
+    config.filter_parameters << :password
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded after loading

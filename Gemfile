@@ -46,6 +46,8 @@ gem "binding_of_caller"
 gem 'sidekiq'
 gem 'sidekiq-failures', '~> 1.0'
 
+gem "sentry-raven"
+
 
 group :development, :test do  
   gem 'pry-byebug'
