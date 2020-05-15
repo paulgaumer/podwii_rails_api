@@ -1,13 +1,13 @@
 class RegistrationsController < Devise::RegistrationsController
-
   def create
-      super
-      if resource.persisted?
-        Rails.logger.info("Just created and saved #{resource}");
-        p = Podcast.new(user: resource)
-        p.subdomain = params[:subdomain]
-        p.save!
-      end
+    super
+    if resource.persisted?
+      Rails.logger.info("Just created and saved #{resource}")
+      p = Podcast.new(user: resource)
+      p.subdomain = params[:subdomain]
+      p.themes.new()
+      p.save!
+    end
   end
 
   # private
