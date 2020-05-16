@@ -1,18 +1,18 @@
 class Api::V1::ThemesController < Api::V1::BaseController
-before_action :set_theme, only: [ :update ]
+  before_action :set_theme, only: [:update]
 
-def update
-  if @theme.update(theme_params)
+  def update
+    if @theme.update(theme_params)
       head :no_content
     else
       render_error
     end
-end
+  end
 
-private
+  private
 
   def theme_params
-    params.require(:theme).permit(colors: [:primary])
+    params.require(:theme).permit(colors: [:primary, :headerText, :headerBackground])
   end
 
   def set_theme
@@ -21,8 +21,7 @@ private
   end
 
   def render_error
-      render json: { errors: @theme.errors.full_messages },
-      status: :unprocessable_entity
+    render json: { errors: @theme.errors.full_messages },
+           status: :unprocessable_entity
   end
-
 end
