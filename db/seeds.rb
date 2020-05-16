@@ -7,11 +7,9 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 User.destroy_all
-Podcast.destroy_all
 
 #Create Users
-User.create!(email: "paul@test.com", password:"password")
-User.create!(email: "bob@test.com", password:"password")
+User.create!(email: "paul@test.com", password: "password")
 
 #Create Podcasts
-Podcast.create!(name: "", description: "", url:"https://google.com", subdomain: "subtest", feed_url: "https://feeds.buzzsprout.com/740042.rss", user: User.first)
+Podcast.create!(user: User.first, subdomain: "jls", feed_url: "https://feeds.buzzsprout.com/740042.rss")
