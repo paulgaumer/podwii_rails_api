@@ -81,7 +81,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   def podcast_params
-    params.require(:podcast).permit(:title, :description, :subdomain, :feed_url, :instagram_access_token, instagram_access_token: [:access_token, :expires_in], directories: [:apple_podcasts, :google_podcasts, :spotify, :rss])
+    params.require(:podcast).permit(:title, :description, :subdomain, :feed_url, :financial_support, :facebook_app_id, :instagram_access_token, instagram_access_token: [:access_token, :expires_in], directories: [:apple_podcasts, :google_podcasts, :spotify, :rss])
   end
 
   def render_error
@@ -137,6 +137,8 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         subdomain: podcast.subdomain,
         directories: podcast.directories,
         instagram_access_token: podcast.instagram_access_token,
+        financial_support: podcast.financial_support,
+        facebook_app_id: podcast.facebook_app_id,
         theme: podcast.themes.first,
       }
     end
@@ -182,6 +184,8 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         episode: episode,
         subdomain: podcast.subdomain,
         directories: podcast.directories,
+        financial_support: podcast.financial_support,
+        facebook_app_id: podcast.facebook_app_id,
         theme: podcast.themes.first,
       }
     end
