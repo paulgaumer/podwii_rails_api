@@ -81,7 +81,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   def podcast_params
-    params.require(:podcast).permit(:title, :description, :subdomain, :feed_url, :financial_support, :facebook_app_id, :instagram_access_token, instagram_access_token: [:access_token, :expires_in], directories: [:apple_podcasts, :google_podcasts, :spotify, :rss])
+    params.require(:podcast).permit(:title, :description, :subdomain, :feed_url, :financial_support, :facebook_app_id, :instagram_access_token, instagram_access_token: [:access_token, :expires_in], directories: [:apple_podcasts, :google_podcasts, :spotify, :rss], socials: [:facebook, :twitter, :instagram])
   end
 
   def render_error
@@ -140,6 +140,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         financial_support: podcast.financial_support,
         facebook_app_id: podcast.facebook_app_id,
         theme: podcast.themes.first,
+        socials: podcast.socials,
       }
     end
   end
@@ -187,6 +188,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         financial_support: podcast.financial_support,
         facebook_app_id: podcast.facebook_app_id,
         theme: podcast.themes.first,
+        socials: podcast.socials,
       }
     end
   end
@@ -215,7 +217,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   end
 
   def get_picture(id, token)
-    url = "https://graph.instagram.com/#{id}?fields=media_url,media_type,permalink&access_token=#{token}"
+    url = "https://graph.instagram.com/#{id}?fields=media_url,media_type,permalink,username&access_token=#{token}"
     result_serialized = open(url).read
     result = JSON.parse(result_serialized)
   end
