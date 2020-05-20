@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_19_150415) do
+ActiveRecord::Schema.define(version: 2020_05_20_153423) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -62,6 +62,7 @@ ActiveRecord::Schema.define(version: 2020_05_19_150415) do
     t.string "facebook_app_id"
     t.string "financial_support"
     t.json "socials"
+    t.integer "transcription_time_used", default: 0
     t.index ["user_id"], name: "index_podcasts_on_user_id"
   end
 
