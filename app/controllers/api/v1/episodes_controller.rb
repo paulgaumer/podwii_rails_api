@@ -11,7 +11,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     @episode = Episode.new(episode_params)
     authorize @episode
     if @episode.save
-      head :no_content
+      render json: { episode_id: @episode.id }
     else
       render_error
     end
