@@ -11,13 +11,13 @@ class GetTranscriptionJob < ApplicationJob
 
     # ***FOR PRODUCTION ***
     # url = @episode.enclosure["url"]
+    # puts "EPISODE'S URL: #{url}"
+    # audio_src = Transcription::DownloadAudioSource.call(url)
+    # duration = Transcription::GetAudioDuration.call(audio_src, episode_id)
+    # puts "DURATION: #{duration}"
+    # audio_flac = Transcription::ConvertAudioToFlac.call(audio_src)
+    # audio_stored = Transcription::UploadToStorage.call(audio_flac)
     # ************************
-    puts "EPISODE'S URL: #{url}"
-    audio_src = Transcription::DownloadAudioSource.call(url)
-    duration = Transcription::GetAudioDuration.call(audio_src, episode_id)
-    puts "DURATION: #{duration}"
-    audio_flac = Transcription::ConvertAudioToFlac.call(audio_src)
-    audio_stored = Transcription::UploadToStorage.call(audio_flac)
 
     # ***FOR LOCAL TESTS***
     audio_stored = { uri: "gs://podwii-audio-source/pod-test.wav" }
