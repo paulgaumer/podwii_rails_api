@@ -48,6 +48,8 @@ gem 'sidekiq-failures', '~> 1.0'
 
 gem "sentry-raven"
 
+gem "httparty"
+
 
 group :development, :test do  
   gem 'pry-byebug'
