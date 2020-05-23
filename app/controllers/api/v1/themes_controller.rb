@@ -12,7 +12,7 @@ class Api::V1::ThemesController < Api::V1::BaseController
   private
 
   def theme_params
-    params.require(:theme).permit(colors: [:primary, :headerText, :headerBackground])
+    params.require(:theme).permit(colors: [:primary, :headerText, :headerBackground, :activeTheme])
   end
 
   def set_theme
