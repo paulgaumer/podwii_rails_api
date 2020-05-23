@@ -4,6 +4,8 @@ class RegistrationsController < Devise::RegistrationsController
     resource.save
     yield resource if block_given?
     if resource.persisted?
+      # Needed for Warden and getting a token back!
+      sign_up(resource_name, resource)
       Rails.logger.info("Just created and saved #{resource}")
       p = Podcast.new(user: resource)
       p.subdomain = params[:subdomain]
