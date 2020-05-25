@@ -49,6 +49,7 @@ gem 'sidekiq-failures', '~> 1.0'
 gem "sentry-raven"
 
 gem "httparty"
+gem "slack-notifier"
 
 
 group :development, :test do  

@@ -16,6 +16,7 @@ module PodcastsApi
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
     config.active_job.queue_adapter = :sidekiq
+    config.eager_load_paths += %W(#{config.root}/lib)
 
     Rails.application.config.middleware.insert_before 0, Rack::Cors do
       allow do

@@ -11,6 +11,7 @@ class RegistrationsController < Devise::RegistrationsController
       p.subdomain = params[:subdomain]
       p.themes.new(colors: { "primary" => "#F97F7F", "headerText" => "#D17C78", "headerBackground" => "#181D46", "activeTheme" => "theme1" })
       if p.save
+        Notifications::SlackNotifier.call(resource.email, p.subdomain)
         render json: { message: "User & Podcast created" }
       else
         resource.destroy
