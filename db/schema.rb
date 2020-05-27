@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_20_153423) do
+ActiveRecord::Schema.define(version: 2020_05_27_094132) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,6 +37,7 @@ ActiveRecord::Schema.define(version: 2020_05_20_153423) do
     t.string "podcast_title"
     t.json "enclosure"
     t.json "cover_image"
+    t.json "speakers_labels"
     t.index ["podcast_id"], name: "index_episodes_on_podcast_id"
   end
 

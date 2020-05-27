@@ -20,7 +20,7 @@ class Transcription::ParseTranscriptionResultsMulti
             # binding.pry
             content = terms.join(" ")
             puts "FIRST ROUND CONTENT CREATED"
-            ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-content'>#{content}</p>"
+            ind = "<h4 id=\"transcript-speaker\">Speaker #{speaker}</h4><p id='transcript-content'>#{content}</p>"
             res = res + ind
           end
         else
@@ -36,7 +36,7 @@ class Transcription::ParseTranscriptionResultsMulti
               t_end = time_end.clone
               e = display_timestamp(t_end)
               puts "SAME SPEAKER CONTENT CREATED"
-              ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{s} - #{e}</p><p id='transcript-content'>#{content}</p>"
+              ind = "<h4 id=\"transcript-speaker\">Speaker #{speaker}</h4><p id='transcript-timestamp'>#{s} - #{e}</p><p id='transcript-content'>#{content}</p>"
               res = res + ind
             end
           else
@@ -49,7 +49,7 @@ class Transcription::ParseTranscriptionResultsMulti
             t_end = time_end.clone
             e = display_timestamp(t_end)
             puts "START OK"
-            ind = "<h4 id='transcript-speaker'>Speaker #{speaker}</h4><p id='transcript-timestamp'>#{s} - #{e}</p><p id='transcript-content'>#{content}</p>"
+            ind = "<h4 id=\"transcript-speaker\">Speaker #{speaker}</h4><p id='transcript-timestamp'>#{s} - #{e}</p><p id='transcript-content'>#{content}</p>"
             puts "IND OK"
             res = res + ind
             puts "RES OK"
