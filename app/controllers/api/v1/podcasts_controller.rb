@@ -166,6 +166,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
         summary: ep_db ? ep_db.summary : remove_html_tags(desc) || ep_rss.description,
         show_notes: ep_db ? ep_db.show_notes : ep_rss.description,
         transcription: ep_db ? ep_db.transcription : nil,
+        speakers_labels: ep_db ? ep_db.speakers_labels : nil,
         guid: ep_rss.guid.content,
         cover_image: ep_rss.itunes_image != nil ? { url: ep_rss.itunes_image.href } : image,
         enclosure: {

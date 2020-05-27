@@ -56,7 +56,6 @@ class Transcription::InitTranscriptionSingle
     raise operation_obj.results.message if operation_obj.error?
     results = operation_obj.response.results
     puts "OPERATION RESULTS RECEIVED"
-    binding.pry
     final_transcription = Transcription::ParseTranscriptionResultsSingle.call(results)
     # file.delete
     return final_transcription

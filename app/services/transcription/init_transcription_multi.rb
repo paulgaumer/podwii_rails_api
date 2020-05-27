@@ -38,7 +38,7 @@ class Transcription::InitTranscriptionMulti
     puts "OPS INSTANCE CREATED"
 
     until transcription_done === true
-      # wait 5 min
+      # wait 3 min
       sleep 300
       puts "ASKING GOOGLE SPEECH"
       res = ops.get_operation name: operation_name

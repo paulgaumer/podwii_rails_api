@@ -56,7 +56,7 @@ class Api::V1::EpisodesController < Api::V1::BaseController
   end
 
   def episode_params
-    params.require(:episode).permit(:podcast_id, :guid, :title, :summary, :show_notes, :transcription, :podcast_title, enclosure: [:length, :type, :url, :duration, :pubDate], cover_image: [:link, :title, :url])
+    params.require(:episode).permit(:podcast_id, :guid, :title, :summary, :show_notes, :transcription, :podcast_title, :speakers_labels, speakers_labels: [:speaker1, :speaker2, :speaker3, :speaker4], enclosure: [:length, :type, :url, :duration, :pubDate], cover_image: [:link, :title, :url])
   end
 
   def transcription_params
@@ -67,22 +67,4 @@ class Api::V1::EpisodesController < Api::V1::BaseController
     render json: { errors: @episode.errors.full_messages },
       status: :unprocessable_entity
   end
-
-  # def get_transcription
-  #   puts "IN GET_TRANSCRIPTION FUNCTION"
-
-  #   # url = "https://flex.acast.com/www.scientificamerican.com/podcast/podcast.mp3?fileId=2A1EE68D-18E6-4E3B-BB1FA3C50BE5E395"
-  #   # audio_src = Transcription::DownloadAudioSource.call(url)
-  #   # audio_flac = Transcription::ConvertAudioToFlac.call(audio_src)
-  #   # audio_stored = Transcription::UploadToStorage.call(audio_flac)
-
-  #   audio_stored = { uri: "gs://podwii-audio-source/pod-test.wav" }
-
-  #   if @speakers_number > 1
-  #     transcription = Transcription::InitTranscriptionMulti.call(audio_stored, @speakers_number)
-  #   else
-  #     transcription = Transcription::InitTranscriptionSingle.call(audio_stored)
-  #   end
-  #   return transcription
-  # end
 end
