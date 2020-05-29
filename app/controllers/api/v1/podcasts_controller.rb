@@ -211,19 +211,31 @@ class Api::V1::PodcastsController < Api::V1::BaseController
       range = list.first(8)
       range.each do |pic|
         picture = get_picture(pic["id"], token)
-        pictures << picture
+        if picture["media_type"] === "CAROUSEL_ALBUM"
+          first_id = picture["children"]["data"][0]["id"]
+          first_pic = get_picture(first_id, token)
+          pictures << first_pic
+        else
+          pictures << picture
+        end
       end
     else
       list.each do |pic|
         picture = get_picture(pic["id"], token)
-        pictures << picture
+        if picture["media_type"] === "CAROUSEL_ALBUM"
+          first_id = picture["children"]["data"][0]["id"]
+          first_pic = get_picture(first_id, token)
+          pictures << first_pic
+        else
+          pictures << picture
+        end
       end
     end
     return pictures
   end
 
   def get_picture(id, token)
-    url = "https://graph.instagram.com/#{id}?fields=media_url,media_type,permalink,username&access_token=#{token}"
+    url = "https://graph.instagram.com/#{id}?fields=media_url,media_type,permalink,username,children&access_token=#{token}"
     result_serialized = open(url).read
     result = JSON.parse(result_serialized)
   end
