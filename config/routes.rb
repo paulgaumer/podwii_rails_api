@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
       resources :podcasts
+      resources :charges
       resources :episodes, only: [:create, :update]
       resources :crm_items, only: [:index, :create]
       resources :themes, only: [:update]

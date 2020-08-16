@@ -35,6 +35,7 @@ gem "rack-cors"
 gem "google-cloud-storage"
 gem "google-cloud-speech", ">= 1"
 gem 'rss'
+gem "stripe"
 
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass'
