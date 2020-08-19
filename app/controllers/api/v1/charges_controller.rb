@@ -2,13 +2,7 @@ require "stripe"
 
 class Api::V1::ChargesController < ActionController::API
   def create
-    Stripe.api_key = "sk_test_WufmgV5wuW7Rxm7mG8bzSQ3600BtXV2VQL"
-
-    # payment_intent = Stripe::PaymentIntent.create(
-    #   amount: 6500,
-    #   currency: "usd",
-    # )
-    # render json: { clientSecret: payment_intent["client_secret"] }
+    # Stripe.api_key = "sk_test_WufmgV5wuW7Rxm7mG8bzSQ3600BtXV2VQL"
 
     session = Stripe::Checkout::Session.create(
       payment_method_types: ["card"],

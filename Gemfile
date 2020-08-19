@@ -35,7 +35,9 @@ gem "rack-cors"
 gem "google-cloud-storage"
 gem "google-cloud-speech", ">= 1"
 gem 'rss'
+
 gem "stripe"
+gem 'stripe_event'
 
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass'
@@ -51,7 +53,6 @@ gem "sentry-raven"
 
 gem "httparty"
 gem "slack-notifier"
-
 
 group :development, :test do  
   gem 'pry-byebug'
