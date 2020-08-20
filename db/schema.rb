@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_27_094132) do
+ActiveRecord::Schema.define(version: 2020_08_19_162407) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,6 +45,15 @@ ActiveRecord::Schema.define(version: 2020_05_27_094132) do
     t.string "jti", null: false
     t.datetime "exp", null: false
     t.index ["jti"], name: "index_jwt_blacklists_on_jti"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.string "state"
+    t.string "checkout_session_id"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
   create_table "podcasts", force: :cascade do |t|
@@ -92,6 +101,7 @@ ActiveRecord::Schema.define(version: 2020_05_27_094132) do
 
   add_foreign_key "crm_items", "podcasts"
   add_foreign_key "episodes", "podcasts"
+  add_foreign_key "orders", "users"
   add_foreign_key "podcasts", "users"
   add_foreign_key "themes", "podcasts"
 end

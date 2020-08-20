@@ -76,6 +76,7 @@ class Api::V1::PodcastsController < Api::V1::BaseController
   private
 
   def set_podcast
+    # byebug
     @podcast = Podcast.where(user: current_user).first
     authorize @podcast
   end

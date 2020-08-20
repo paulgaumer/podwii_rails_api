@@ -9,6 +9,7 @@ class RegistrationsController < Devise::RegistrationsController
       Rails.logger.info("Just created and saved #{resource}")
       p = Podcast.new(user: resource)
       p.subdomain = params[:subdomain]
+      p.feed_url = "https://feeds.buzzsprout.com/740042.rss"
       p.themes.new(colors: { "primary" => "#F97F7F", "headerText" => "#D17C78", "headerBackground" => "#181D46", "activeTheme" => "theme1" })
       if p.save
         Notifications::SlackNotifier.call(resource.email, p.subdomain)
