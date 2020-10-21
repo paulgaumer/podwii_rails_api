@@ -2,7 +2,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/paulgaumer/japan_life_stories">
-    <img src="src/images/podcast-logo.png" alt="Logo" width="80" height="80">
+    <img src="public/banner-seo.png" alt="Logo" width="500">
   </a>
 
   <h3 align="center">Podwii (Rails API)</h3>
