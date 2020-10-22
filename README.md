@@ -41,6 +41,7 @@ Podwii is SaaS application helping podcasters better reach their audience. Gener
 - [Styled Components](https://styled-components.com/)
 - [Heroku](https://Heroku.com) - hosting
 - [Google Cloud APIs](https://cloud.google.com/) - transcription and data hosting
+- [Ffmpeg](https://ffmpeg.org/) - audio processing
 - [Sidekiq](https://sidekiq.org/)
 
 <!-- GETTING STARTED -->
@@ -59,7 +60,14 @@ git clone git@github.com:paulgaumer/podwii_rails_api.git
 bundle install
 ```
 
-3. Start your local Rails server
+3. Create db and run the migrations
+
+```sh
+rails db:create
+rails db:migrate
+```
+
+4. Start your local Rails server
 
 ```sh
 rails s
