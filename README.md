@@ -59,7 +59,14 @@ git clone git@github.com:paulgaumer/podwii_rails_api.git
 bundle install
 ```
 
-3. Start your local Rails server
+3. Create db and run the migrations
+
+```sh
+rails db:create
+rails db:migrate
+```
+
+4. Start your local Rails server
 
 ```sh
 rails s
